@@ -4,23 +4,20 @@ using Unity.Burst.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class mouvementscript : MonoBehaviour
+public abstract class mouvementscript : MonoBehaviour
 {
     public Rigidbody rb;
     public GameObject body;
-    public Transform groundcheck;
-    public Camera cam;
     public float targetvel;
     public float sprintmofier;
-    public const float MAXSPEED = 30;
-    public const float MAXACCEL = 3 * MAXSPEED;
-    public const float MAXAIR = 1;
-    public const float MAXHEIGTH = 2f;
+    public float MAXSPEED = 30f;
+    public float MAXACCEL = 3 ;
+    public const float MAXAIR = 1f;
+    public float MAXHEIGTH = 2f;
     public float jumpHeight;
-    public float decay;
+    public float decay = 20f;
     public float sprintp = 1.20f;
     private float sprintm;
-    public Text txt;
     public float xmov;
     public float zmov;
     public bool noclip;
@@ -29,19 +26,14 @@ public class mouvementscript : MonoBehaviour
     Vector3 wishdir;
     public LayerMask layermask;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
     // Update is called once per frame
-    void FixedUpdate()
+    public void QuakeMovementFunc(float x, float z,bool run, bool jump)
     {
 
       
-            xmov = Input.GetAxis("Horizontal");
-            zmov = Input.GetAxis("Vertical");
+            xmov = x;
+            zmov = z;
       
             wishdir = transform.forward * zmov + transform.right * xmov;
             wishdir.Normalize();
@@ -52,7 +44,7 @@ public class mouvementscript : MonoBehaviour
                 return;
             }
             float currentspeed = Vector3.Dot(rb.velocity, wishdir); 
-            if(Input.GetKey(KeyCode.LeftShift) && zmov > 0.1f)
+            if(run && zmov > 0.1f)
             {
                 sprintm = sprintp;
             }
@@ -70,12 +62,13 @@ public class mouvementscript : MonoBehaviour
             {
                 if (Mathf.Abs(hit.point.y - transform.position.y) < MAXHEIGTH)
                 {
+                  
                     transform.position = new Vector3(transform.position.x,transform.position.y + (MAXHEIGTH - Mathf.Abs(hit.point.y - transform.position.y)),transform.position.z);
                     rb.velocity += new Vector3(-rb.velocity.x/decay, 0, -rb.velocity.z/decay);
                     float addspeed = Mathf.Clamp(MAXSPEED - currentspeed, 0, MAXACCEL * Time.fixedDeltaTime);
                     rb.velocity += (addspeed * wishdir * sprintm);
 
-                    if (Input.GetKey(KeyCode.Space))
+                    if (jump)
                     {
 
                         rb.velocity += new Vector3(0, -rb.velocity.y + jumpHeight, 0);
@@ -89,15 +82,31 @@ public class mouvementscript : MonoBehaviour
                 }
 
             }
-           
-            // cam.transform.Rotate(cam.transform.forward, rb.velocity.x*20);
-
-
-
-
-
-           //txt.text = "vel :" + (int)((Mathf.Sqrt(rb.velocity.x * rb.velocity.x 
-             //                  + rb.velocity.z * rb.velocity.z)) * 10) + "curspeed : " +( Physics.CheckSphere(groundcheck.position, 0.1f) ? "true" : "false");
-        
     }
+
+    public void RotateActorTowards(Vector3 pos, float rotationSpeed)
+    {
+        Vector3 direction = pos - transform.position;
+        direction.y = 0;  // Keep the direction on the horizontal plane.
+
+        if (direction.sqrMagnitude > 0.001f) // Ensure there's a valid direction to rotate towards
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+
+            // Get the current and target rotations around the y-axis only.
+            float currentYRotation = transform.rotation.eulerAngles.y;
+            float targetYRotation = targetRotation.eulerAngles.y;
+
+            // Create a rotation around the y-axis.
+            Quaternion newRotation = Quaternion.Euler(0, Mathf.LerpAngle(currentYRotation, targetYRotation, rotationSpeed * Time.deltaTime), 0);
+
+            // Apply the new rotation.
+            transform.rotation = newRotation;
+        }
+    }
+
+
+    public abstract void MoveActor(Vector3 pos);
+   
+
 }

@@ -8,63 +8,118 @@ public abstract class AIbase : MonoBehaviour
 {   
     private Vector3 m_Position;
     private bool b_think = false;
-    private List<AIState> states;
-    private NavMeshAgent nav;
+    private List<AIState> states = new List<AIState>();
     private Transform eyePosition;
-   
+    private Vector3 previousPosition;
 
-
-    public Animator animator;
+    public float turnSpeed;
+    public mouvementscript moveType;
+    public Animator Animator;
     public string teamName;
-    public static List<AIbase> Population;
+    public static List<AIbase> Population = new List<AIbase>();
     public float maxViewDistance;
     public float maxViewAngle;
     public LayerMask occlusionLayer;
+    public Rigidbody rb;
+    public bool canMove = false;
+
+    public LockRoot lockRoot;
 
     // Start is called before the first frame update
     void Awake()
     {
+        previousPosition = transform.position;
         Population.Add(this);
     }
 
     
 
     // Update is called once per frame
-    void Update()
-    {
-        
+    void FixedUpdate()
+    {   
+        AIthink();
+        if (canMove)
+        {
+            this.Animator.SetBool("Moving", true);
+            moveType.MoveActor(m_Position);
+            UpdateAnimator();
+        }
+        else
+        {
+            moveType.MoveActor(transform.position);
+            this.Animator.SetBool("Moving", false);
+            
+        }
+
+        Debug.Log("States : " + states.Count);
     }
+
+    private void UpdateAnimator()
+    {
+        Vector3 displacement = transform.position - previousPosition;
+        displacement *= 1000;
+        Vector3 localDisplacement = transform.InverseTransformDirection(displacement);
+        this.Animator.SetFloat("ZSpeed", localDisplacement.z);
+        this.Animator.SetFloat("XSpeed", -localDisplacement.x);
+        
+        previousPosition = transform.position;
+    }
+
 
     public void SetMoveVector(Vector3 v)
     {
         m_Position = v;
     }
 
-    public abstract void LookTowards();
+    public abstract void LookTowards(Vector3 v);
 
     public abstract void AIthink();
 
     public void PlayState()
     {
         //init state if not done yet
-        if (!states[states.Count].init())
+        if(states.Count < 0)return;
+        if (!states[states.Count - 1].init())
         {
-            states[states.Count].StartState(this);
+            
+            states[states.Count - 1].StartState(this);
+        }
+
+        if(states[states.Count - 1].WasInterupted())
+        {
+            Debug.Log("Interupted");
+            states[states.Count - 1].SetInterupted(false);
+            states[states.Count - 1].Continue();
         }
         //do stuff...
-        states[states.Count].act();
+        states[states.Count - 1].act();
 
         //remove the state if it execution finished
-        if (states[states.Count].Ended())
+        if (states[states.Count - 1].Ended())
         {
-            states.Remove(states[states.Count]);
+            states[states.Count - 1].Finish();
+            states.Remove(states[states.Count - 1]);
         }
     }
 
     public void AddState(AIState st)
     {
-        states[states.Count].Interupt();
+        if(states.Count > 0)
+        {
+            states[states.Count - 1].Interupt();
+            states[states.Count - 1].SetInterupted(true);
+
+        }
+        
         states.Add(st);
+    }
+
+    public void RemoveState(AIState st)
+    {
+       
+       
+        st.Interupt();
+        states.Remove(st);
     }
 
     public bool IsSeing(AIbase target)
@@ -78,5 +133,42 @@ public abstract class AIbase : MonoBehaviour
         }
         return true;
 
+    }
+
+    public List<AIbase> GetEnemies()
+    {
+        List<AIbase> enemies = new List<AIbase>();
+        foreach (AIbase ai in Population)
+        {
+            if (ai != this && ai.teamName != teamName)
+            {
+                if (IsSeing(ai))
+                {
+                    enemies.Add(ai);
+                }
+            }
+        }
+        return enemies;
+    }
+
+    public List<AIbase> GetFriends()
+    {
+        List<AIbase> friends = new List<AIbase>();
+        foreach (AIbase ai in Population)
+        {
+            if (ai != this && ai.teamName == teamName)
+            {
+                if (IsSeing(ai))
+                {
+                    friends.Add(ai);
+                }
+            }
+        }
+        return friends;
+    }   
+
+    public Vector3 GetEyePosition()
+    {
+        return eyePosition.position;
     }
 }
