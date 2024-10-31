@@ -26,7 +26,7 @@ public class LockRoot : MonoBehaviour
     void Start()
     {
         l_offset = l_model.position - l_controller.position;
-        l_moffset = l_metaRig.position;
+        l_moffset = l_model.position - l_metaRig.position;
 
     }
 
@@ -53,16 +53,15 @@ public class LockRoot : MonoBehaviour
         if (type == l_mtype.LOCKANIM)
         {
             var o = l_model.position - l_controller.position - l_offset;
-            o.y = 0;
-            l_metaRig.position = new Vector3(l_metaRig.position.x - o.x,l_metaRig.position.y, l_metaRig.position.z -o.z) ;
+            l_metaRig.position = new Vector3(l_metaRig.position.x - o.x,l_metaRig.position.y - o.y, l_metaRig.position.z -o.z) ;
         }
         else if (type == l_mtype.MOVEWITHANIM)
         {
             var o = l_model.position - l_controller.position - l_offset;
             o.y = 0;
             var yoffset = l_metaRig.position.y - l_controller.position.y;
-            l_controller.position = new Vector3(l_model.position.x - l_offset.x, l_model.position.y - l_offset.y - yoffset, l_model.position.z - l_offset.z);
-            l_metaRig.position = new Vector3(l_metaRig.position.x - o.x, l_metaRig.position.y, l_metaRig.position.z - o.z);
+            l_controller.position = new Vector3(l_model.position.x - l_offset.x, l_model.position.y - l_offset.y, l_model.position.z - l_offset.z);
+            l_metaRig.position = new Vector3(l_metaRig.position.x - o.x, l_metaRig.position.y - o.y, l_metaRig.position.z - o.z);
 
 
         }
