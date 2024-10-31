@@ -6,7 +6,7 @@ using static UnityEngine.UI.Image;
 
 public abstract class AIbase : MonoBehaviour
 {   
-    private Vector3 m_Position;
+    protected Vector3 m_Position;
     private bool b_think = false;
     private List<AIState> states = new List<AIState>();
     private Transform eyePosition;
@@ -22,6 +22,7 @@ public abstract class AIbase : MonoBehaviour
     public LayerMask occlusionLayer;
     public Rigidbody rb;
     public bool canMove = false;
+    public bool noGravity = false;
 
     public LockRoot lockRoot;
 
@@ -38,26 +39,14 @@ public abstract class AIbase : MonoBehaviour
     void FixedUpdate()
     {   
         AIthink();
-        if (canMove)
-        {
-            this.Animator.SetBool("Moving", true);
-            moveType.MoveActor(m_Position);
-            UpdateAnimator();
-        }
-        else
-        {
-            moveType.MoveActor(transform.position);
-            this.Animator.SetBool("Moving", false);
-            
-        }
 
         Debug.Log("States : " + states.Count);
     }
 
-    private void UpdateAnimator()
+    protected void UpdateAnimator()
     {
         Vector3 displacement = transform.position - previousPosition;
-        displacement *= 1000;
+        displacement *= 10;
         Vector3 localDisplacement = transform.InverseTransformDirection(displacement);
         this.Animator.SetFloat("ZSpeed", localDisplacement.z);
         this.Animator.SetFloat("XSpeed", -localDisplacement.x);
@@ -112,6 +101,7 @@ public abstract class AIbase : MonoBehaviour
         }
         
         states.Add(st);
+        st.StartState(this);
     }
 
     public void RemoveState(AIState st)

@@ -9,7 +9,8 @@ public class Stumble : AIState
     {
         
         this.Animator.SetTrigger("Stagger");
-        
+        this.ai.noGravity = true;
+
     }
     public override void act()
     {
@@ -42,6 +43,7 @@ public class Stumble : AIState
         this.ai.lockRoot.Lock();
         this.ai.lockRoot.PreCalc();
         hasEnded = true;
+        this.ai.noGravity = false;
     }
 
     public override void Continue()

@@ -17,8 +17,8 @@ public class AiMouvement : mouvementscript
         }
        
         var angToTar = Vector3.SignedAngle( pos - transform.position, transform.forward, transform.up);
-        var x = 0;
-        var z = 0;
+        float x = 0;
+        float z = 0;
         if (angToTar < 70 && angToTar > -70)
         {
             z = 1;
@@ -37,7 +37,7 @@ public class AiMouvement : mouvementscript
             x = -1;
         }
         var t = obstacleAvoidance();
-        x += (int)t.x;
+        x += t.x;
 
 
         x = Mathf.Clamp(x, -1, 1);
@@ -45,7 +45,7 @@ public class AiMouvement : mouvementscript
         
 
         this.QuakeMovementFunc(-x, z,false,false);
-        this.RotateActorTowards(pos, 5f);
+        this.RotateActorTowards(pos,2f);
     }
 
     public Vector2 obstacleAvoidance()
@@ -53,19 +53,26 @@ public class AiMouvement : mouvementscript
 
         Vector2 ret = new Vector2(0, 0);
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, transform.forward + transform.right, out hit, 2f))
+        if (Physics.Raycast(transform.position, transform.forward + transform.right, out hit, 4f))
         {
-            if (hit.collider.gameObject.layer == obstacleLayer || hit.collider.gameObject.layer == other )
-            {
-                ret.x = -1;
-            }
-        }
-        if (Physics.Raycast(transform.position, transform.forward - transform.right, out hit, 2f))
-        {
-            if (hit.collider.gameObject.layer == obstacleLayer || hit.collider.gameObject.layer == other)
+            //Debug.DrawRay(transform.position, (transform.forward - transform.right) * 4f, Color.red, 1f);
+            //Debug.DrawRay(transform.position, (transform.forward + transform.right) * 4f, Color.green, 1f);
+            Debug.Log(hit.collider.gameObject.layer);
+            if (((1 << hit.collider.gameObject.layer) & obstacleLayer) != 0 || ((1 << hit.collider.gameObject.layer) & other) != 0)
             {
                 ret.x = 1;
+                Debug.Log("Dodged");
             }
+            
+        }
+        if (Physics.Raycast(transform.position, transform.forward - transform.right, out hit, 4f))
+        {
+            if (((1 << hit.collider.gameObject.layer) & obstacleLayer) != 0 || ((1 << hit.collider.gameObject.layer) & other) != 0)
+            {
+                ret.x = -1;
+                Debug.Log("Dodged");
+            }
+            
         }
 
         return ret;

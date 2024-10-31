@@ -16,13 +16,14 @@ public class Moving : AIState
     }
     public override void Setup()
     {
-        
+  
         this.hasPath = NavMesh.CalculatePath(ai.transform.position,pos,NavMesh.AllAreas, nav) ;
     }
     public override void act()
     {
        
         ai.canMove = true;
+        //this.hasPath = NavMesh.CalculatePath(ai.transform.position, pos, NavMesh.AllAreas, nav);
         if (!hasPath)
         {
             Debug.Log("No path found");
@@ -30,7 +31,7 @@ public class Moving : AIState
             return;
         }
 
-        if(Vector3.Distance(pos,ai.transform.position) <= 2.1f)
+        if (Vector3.Distance(pos,ai.transform.position) <= 2.1f)
         {
             Debug.Log("Arrived at destination");
             this.hasEnded = true;
@@ -60,7 +61,6 @@ public class Moving : AIState
             currentCorner++;
         }
 
-        Debug.Log(ai);
 
 
     }
@@ -80,6 +80,7 @@ public class Moving : AIState
     public override void Finish()
     {
         ai.canMove = false;
+        this.hasEnded = true;
         //this.Animator.SetBool("Idle", false);
     }
 

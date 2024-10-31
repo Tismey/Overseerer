@@ -8,33 +8,22 @@ public class Idle : AIState
     public override void Setup()
     {
         this.Animator.SetBool("Idle", true);
-        //this.ai.lockRoot.MoveWithAnim();
+        this.ai.lockRoot.MoveWithAnim();
         
     }
     public override void act()
     {
         //do nothing
-        //this.Animator.SetBool("Idle",true);
+        this.Animator.SetBool("Idle",true);
         if (Animator.IsInTransition(0))
         {
             this.ai.lockRoot.Lock();
         }
         else
         {
-            //this.ai.lockRoot.MoveWithAnim();
+            this.ai.lockRoot.MoveWithAnim();
         }
 
-        Debug.Log("Idle");
-        if (ai.GetEnemies().Count > 0)
-        {
-            foreach (AIbase a in ai.GetEnemies())
-            {
-               if(ai.IsSeing(a))
-                {
-                   ai.AddState(new Attack(100f,10f));
-               }
-            }
-        }
     }
 
     public override void Interupt()
@@ -50,7 +39,7 @@ public class Idle : AIState
 
     public override void Continue()
     {
-        //this.ai.lockRoot.MoveWithAnim();
+        this.ai.lockRoot.MoveWithAnim();
         this.Animator.SetBool("Idle", true);
     }
 

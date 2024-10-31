@@ -1,24 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
-public class HumanoidLocoAnim : AIbase
+public class PlayerState : AIbase
 {
     public WeaponAbstract weapon;
     public float rotationSpeed;
     public string team;
-    public Transform test;
     public override void LookTowards(Vector3 v)
     {
-        moveType.RotateActorTowards(v,rotationSpeed);
+        moveType.RotateActorTowards(v, rotationSpeed);
     }
 
     void Start()
     {
         this.team = teamName;
-        this.AddState(new Idle());
-        this.AddState(new Moving(new Vector3(37.4f, 0.1f, -2.869184f)));
+        this.AddState(new PlayerInControl());
     }
 
 
@@ -50,9 +47,4 @@ public class HumanoidLocoAnim : AIbase
         //this.moveType.RotateActorTowards(test.position, 10f);
 
     }
-
-  
-
-
-
 }

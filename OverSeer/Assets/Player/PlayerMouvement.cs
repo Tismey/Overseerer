@@ -11,14 +11,10 @@ public class PlayerMouvement : mouvementscript
     }
 
     // Update is called once per frame
-    void FixedUpdate()
-    {
-        this.QuakeMovementFunc(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), Input.GetKey(KeyCode.LeftShift), Input.GetKeyDown(KeyCode.Space));
-    }
 
     public override void MoveActor(Vector3 pos)
     {
-        transform.position = pos;
+        this.QuakeMovementFunc(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"), Input.GetKey(KeyCode.LeftShift), Input.GetKeyDown(KeyCode.Space));
     }
 
 }

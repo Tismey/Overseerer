@@ -22,6 +22,8 @@ public abstract class mouvementscript : MonoBehaviour
     public float zmov;
     public bool noclip;
 
+    public bool useRotation = true;
+
     Vector3 velocity;
     Vector3 wishdir;
     public LayerMask layermask;
@@ -34,8 +36,9 @@ public abstract class mouvementscript : MonoBehaviour
       
             xmov = x;
             zmov = z;
-      
-            wishdir = transform.forward * zmov + transform.right * xmov;
+            var f = useRotation ? transform.forward : Vector3.forward;
+            var r = useRotation ? transform.right : Vector3.right;
+            wishdir = f * zmov + r * xmov;
             wishdir.Normalize();
             if (noclip)
             {
