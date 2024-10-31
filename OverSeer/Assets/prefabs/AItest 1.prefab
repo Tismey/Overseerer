@@ -631,11 +631,11 @@ MonoBehaviour:
   moveType: {fileID: 3164870882709952230}
   Animator: {fileID: 3164870881946622950}
   teamName: 
-  maxViewDistance: 0
-  maxViewAngle: 0
+  maxViewDistance: 30
+  maxViewAngle: 120
   occlusionLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   rb: {fileID: 3164870882709952158}
   canMove: 0
   noGravity: 0
@@ -643,6 +643,7 @@ MonoBehaviour:
   weapon: {fileID: 0}
   rotationSpeed: 0.1
   team: tg
+  test: {fileID: 0}
 --- !u!114 &3164870882709952230
 MonoBehaviour:
   m_ObjectHideFlags: 0

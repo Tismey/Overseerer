@@ -5,11 +5,11 @@ using UnityEngine.AI;
 
 public class ChaseTest : AIState
 {
-        public Vector3 pos;
+        public Transform pos;
         private Moving m;
       
         // Start is called before the first frame update
-        public ChaseTest(Vector3 pos)
+        public ChaseTest(Transform pos)
         {
             this.pos = pos;
         }
@@ -21,17 +21,18 @@ public class ChaseTest : AIState
         }
         public override void act()
         {
-            m = new Moving(pos);
-            ai.AddState(m);
 
 
-            //if (!hasPath)
-            //{
-            //    Debug.Log("No path found");
-            //  hasEnded = true;
-            //return;
-            //}
-
+           if(Vector3.Distance(ai.transform.position, pos.position) > 5f)
+           {
+                m = new Moving(pos);
+                ai.AddState(m);
+                return;
+           }
+           else
+           {
+                ai.AddState(new Attack(6f,1f));
+           }
 
 
         }

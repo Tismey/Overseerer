@@ -17,8 +17,7 @@ public class HumanoidLocoAnim : AIbase
     void Start()
     {
         this.team = teamName;
-        this.AddState(new Idle());
-        this.AddState(new Moving(new Vector3(37.4f, 0.1f, -2.869184f)));
+        //this.AddState(new Idle());
     }
 
 

@@ -31,6 +31,7 @@ public abstract class AIbase : MonoBehaviour
     {
         previousPosition = transform.position;
         Population.Add(this);
+        eyePosition = transform;
     }
 
     
@@ -72,6 +73,7 @@ public abstract class AIbase : MonoBehaviour
         {
             
             states[states.Count - 1].StartState(this);
+            return;
         }
 
         if(states[states.Count - 1].WasInterupted())
@@ -95,6 +97,10 @@ public abstract class AIbase : MonoBehaviour
     {
         if(states.Count > 0)
         {
+            if (!states[states.Count - 1].init())
+            {
+                states[states.Count - 1].StartState(this);
+            }
             states[states.Count - 1].Interupt();
             states[states.Count - 1].SetInterupted(true);
 

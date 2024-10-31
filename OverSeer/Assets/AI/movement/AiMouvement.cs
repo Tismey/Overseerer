@@ -57,10 +57,10 @@ public class AiMouvement : mouvementscript
         {
             //Debug.DrawRay(transform.position, (transform.forward - transform.right) * 4f, Color.red, 1f);
             //Debug.DrawRay(transform.position, (transform.forward + transform.right) * 4f, Color.green, 1f);
-            Debug.Log(hit.collider.gameObject.layer);
+            
             if (((1 << hit.collider.gameObject.layer) & obstacleLayer) != 0 || ((1 << hit.collider.gameObject.layer) & other) != 0)
             {
-                ret.x = 1;
+                ret.x = 2;
                 Debug.Log("Dodged");
             }
             
@@ -69,7 +69,7 @@ public class AiMouvement : mouvementscript
         {
             if (((1 << hit.collider.gameObject.layer) & obstacleLayer) != 0 || ((1 << hit.collider.gameObject.layer) & other) != 0)
             {
-                ret.x = -1;
+                ret.x = -2;
                 Debug.Log("Dodged");
             }
             

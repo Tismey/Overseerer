@@ -16,7 +16,8 @@ public class Attack : AIState
 
     public override void Setup()
     {
-        //this.Animator.SetBool("Combat", true);
+        this.Animator.SetBool("Combat", true);
+        
     }
 
     public override void Continue()
@@ -26,7 +27,7 @@ public class Attack : AIState
     public override void act()
     {
         //do nothing
-        this.Animator.SetBool("Combat", true);
+        
         var e = GetClosestEnemy();
        if (e != null)
         {
@@ -70,16 +71,18 @@ public class Attack : AIState
     private void AttackEnemy()
     {
         Debug.Log("Attacking");
+        //this.Animator.SetBool("Combat", true);
     }
 
     public override void Interupt()
     {
-        //this.Animator.SetBool("Combat", false);
+        this.Animator.SetBool("Combat", false);
+        hasEnded = true;
     }
 
     public override void Finish()
     {
-        //this.Animator.SetBool("Combat", false);
+        this.Animator.SetBool("Combat", false);
     }
 
 }
