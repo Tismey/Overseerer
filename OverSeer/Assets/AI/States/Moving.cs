@@ -6,6 +6,7 @@ using UnityEngine.AI;
 public class Moving : AIState
 {   public Vector3 pos;
     public Transform tran;
+    private Vector3 lead;
     public List<Vector3> path;
     public NavMeshPath nav = new NavMeshPath();
     private bool hasPath;
@@ -33,7 +34,9 @@ public class Moving : AIState
     {
         if (isTrans)
         {
+            lead = tran.position - pos;
             pos = tran.position;
+            ai.LookTowards(pos);
         }
        
         ai.canMove = true;
@@ -67,7 +70,7 @@ public class Moving : AIState
         {
             Debug.Log("Moving....");
             ai.SetMoveVector(nav.corners[currentCorner]);
-            this.hasPath = NavMesh.CalculatePath(ai.transform.position, pos, NavMesh.AllAreas, nav);
+            this.hasPath = NavMesh.CalculatePath(ai.transform.position, pos + (lead * Vector3.Distance(pos,ai.transform.position)*2), NavMesh.AllAreas, nav);
             currentCorner = 0;
 
         }

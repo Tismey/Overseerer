@@ -1,0 +1,45 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class testBullet : MonoBehaviour
+{
+    
+    private Vector3 prevt;
+    public LayerMask hitlayer;
+    private float timer = 0f;
+    // Start is called before the first frame update
+    void Start()
+    {
+        prevt = transform.position;
+    }
+
+    // Update is called once per frame
+    void FixedUpdate()
+    {
+        RaycastHit hit;
+        if(timer > 2f)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        if(Physics.Linecast(prevt, transform.position, out hit, hitlayer))
+        {
+            if (hit.collider.gameObject.GetComponent<AIbase>() != null)
+            {   
+                AIbase.Population.Remove(hit.collider.gameObject.GetComponent<AIbase>());
+                Destroy(hit.collider.gameObject);
+            }
+            else
+            {
+                Debug.Log("Hit " + hit.collider.name);
+                Destroy(gameObject);
+                return;
+            }
+            
+            
+        }
+        prevt = transform.position;
+        timer += Time.deltaTime;
+    }
+}

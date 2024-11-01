@@ -31,7 +31,7 @@ public class Attack : AIState
         var e = GetClosestEnemy();
        if (e != null)
         {
-            ai.moveType.RotateActorTowards(e.GetEyePosition(),e.turnSpeed);
+            ai.LookTowards(e.GetEyePosition());
             AttackEnemy();
         }
         else

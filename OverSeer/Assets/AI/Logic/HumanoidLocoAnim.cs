@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 public class HumanoidLocoAnim : AIbase
 {
-    public WeaponAbstract weapon;
+    
     public float rotationSpeed;
     public string team;
     public Transform test;

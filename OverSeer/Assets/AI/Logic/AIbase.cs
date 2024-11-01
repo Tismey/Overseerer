@@ -24,6 +24,8 @@ public abstract class AIbase : MonoBehaviour
     public bool canMove = false;
     public bool noGravity = false;
 
+    public Transform righthand;
+    public WeaponAbstract weapon;
     public LockRoot lockRoot;
 
     // Start is called before the first frame update
@@ -34,7 +36,12 @@ public abstract class AIbase : MonoBehaviour
         eyePosition = transform;
     }
 
-    
+    void Start()
+    {
+        moveType = gameObject.GetComponent<mouvementscript>();
+    }
+
+
 
     // Update is called once per frame
     void FixedUpdate()

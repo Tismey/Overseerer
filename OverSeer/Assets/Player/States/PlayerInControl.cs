@@ -34,6 +34,10 @@ public class PlayerInControl : AIState
             shoveTimer = 0f;
             //this.Animator.SetTrigger("Shove");
         }
+        if (Input.GetKey(KeyCode.Mouse0) && ai.weapon != null)
+        {
+            ai.weapon.Shoot(ai.transform.forward);
+        }
 
     }
 
