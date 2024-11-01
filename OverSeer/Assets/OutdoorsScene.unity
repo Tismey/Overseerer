@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 2155.1436, g: 2259.3691, b: 3282.2266, a: 1}
+  m_IndirectSpecularColor: {r: 2172.3809, g: 2283.0176, b: 3330.418, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -612,10 +612,10 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  m_Radius: 1.7298625
-  m_Height: 3
+  m_Radius: 0.6995544
+  m_Height: 3.459725
   m_Direction: 1
-  m_Center: {x: 0.5269568, y: 0, z: 0.03676653}
+  m_Center: {x: -0.07769722, y: 0, z: -0.017382324}
 --- !u!23 &243618873
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -904,7 +904,7 @@ MonoBehaviour:
   player: {fileID: 243618875}
   spawnEntitie: {fileID: 3164870882709952159, guid: ea470aba30c3bb04da21218e21c6d6cd,
     type: 3}
-  numOfSpawn: 5
+  numOfSpawn: 10
   spawnRate: 0.2
   Wavenumber: 15
   WaveDelay: 20
@@ -1587,7 +1587,7 @@ MonoBehaviour:
   player: {fileID: 243618875}
   spawnEntitie: {fileID: 3164870882709952159, guid: ea470aba30c3bb04da21218e21c6d6cd,
     type: 3}
-  numOfSpawn: 5
+  numOfSpawn: 10
   spawnRate: 0.2
   Wavenumber: 15
   WaveDelay: 20
@@ -1896,57 +1896,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1089590125
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1089590127}
-  - component: {fileID: 1089590126}
-  m_Layer: 0
-  m_Name: Spawn test (3)
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1089590126
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1089590125}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe90cd8c3bd7bca468780ec01a772351, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  player: {fileID: 243618875}
-  spawnEntitie: {fileID: 3164870882709952159, guid: ea470aba30c3bb04da21218e21c6d6cd,
-    type: 3}
-  numOfSpawn: 30
-  spawnRate: 0.5
-  Wavenumber: 10
-  WaveDelay: 30
---- !u!4 &1089590127
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1089590125}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 23.6, y: 0.64, z: -34.1}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1096850065
 GameObject:
@@ -2772,7 +2721,7 @@ MonoBehaviour:
   player: {fileID: 243618875}
   spawnEntitie: {fileID: 3164870882709952159, guid: ea470aba30c3bb04da21218e21c6d6cd,
     type: 3}
-  numOfSpawn: 5
+  numOfSpawn: 10
   spawnRate: 0.2
   Wavenumber: 15
   WaveDelay: 20
