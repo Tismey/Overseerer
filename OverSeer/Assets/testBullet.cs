@@ -28,7 +28,7 @@ public class testBullet : MonoBehaviour
             if (hit.collider.gameObject.GetComponent<AIbase>() != null)
             {   
                 AIbase.Population.Remove(hit.collider.gameObject.GetComponent<AIbase>());
-                Destroy(hit.collider.gameObject);
+                hit.collider.gameObject.GetComponent<AIbase>().AddState(new Die());
             }
             else
             {
