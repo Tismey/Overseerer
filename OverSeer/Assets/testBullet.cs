@@ -7,6 +7,7 @@ public class testBullet : MonoBehaviour
     
     private Vector3 prevt;
     public LayerMask hitlayer;
+    public GameObject hitEffect;
     private float timer = 0f;
     // Start is called before the first frame update
     void Start()
@@ -29,6 +30,7 @@ public class testBullet : MonoBehaviour
             {   
                 AIbase.Population.Remove(hit.collider.gameObject.GetComponent<AIbase>());
                 hit.collider.gameObject.GetComponent<AIbase>().AddState(new Die());
+                Instantiate(hitEffect, hit.point, Quaternion.identity);
             }
             else
             {
