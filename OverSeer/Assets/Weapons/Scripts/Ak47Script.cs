@@ -9,7 +9,7 @@ public class Ak47Script : WeaponAbstract
     public override void ShotBehavior(Vector3 dir)
     {
         var b  = Instantiate(bullet, muzzle.position - owner.transform.forward * 4, muzzle.rotation);
-        b.GetComponent<Rigidbody>().AddForce(dir * 5000f);
+        b.GetComponent<Rigidbody>().AddForce(dir * 10000f);
     }
 
     public override void ReloadBehavior()
