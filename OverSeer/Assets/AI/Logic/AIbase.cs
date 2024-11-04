@@ -24,16 +24,39 @@ public abstract class AIbase : MonoBehaviour
     public bool canMove = false;
     public bool noGravity = false;
 
+    public Transform righthand;
+    public WeaponAbstract weapon;
     public LockRoot lockRoot;
+
+    private Rigidbody[] ragdollRigidbodies;
+    public GameObject ragdollHolder;
 
     // Start is called before the first frame update
     void Awake()
     {
         previousPosition = transform.position;
         Population.Add(this);
+        eyePosition = transform;
+        if(ragdollHolder != null)
+        {
+            ragdollRigidbodies = ragdollHolder.GetComponentsInChildren<Rigidbody>(true);
+            Debug.Log("Ragdoll rigidbodies : " + ragdollRigidbodies.Length);
+            SetRagdollState(false);
+        }
+        
+        
+        // Désactive tous les Rigidbody au début
+        
     }
 
-    
+    void Start()
+    {
+        moveType = gameObject.GetComponent<mouvementscript>();
+        
+
+    }
+
+
 
     // Update is called once per frame
     void FixedUpdate()
@@ -72,6 +95,7 @@ public abstract class AIbase : MonoBehaviour
         {
             
             states[states.Count - 1].StartState(this);
+            return;
         }
 
         if(states[states.Count - 1].WasInterupted())
@@ -95,6 +119,10 @@ public abstract class AIbase : MonoBehaviour
     {
         if(states.Count > 0)
         {
+            if (!states[states.Count - 1].init())
+            {
+                states[states.Count - 1].StartState(this);
+            }
             states[states.Count - 1].Interupt();
             states[states.Count - 1].SetInterupted(true);
 
@@ -160,5 +188,14 @@ public abstract class AIbase : MonoBehaviour
     public Vector3 GetEyePosition()
     {
         return eyePosition.position;
+    }
+
+    public void SetRagdollState(bool state)
+    {
+        foreach (Rigidbody rb in ragdollRigidbodies)
+        {
+            rb.isKinematic = !state;
+            rb.detectCollisions = state;
+        }
     }
 }

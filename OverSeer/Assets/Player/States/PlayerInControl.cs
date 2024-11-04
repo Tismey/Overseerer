@@ -4,6 +4,11 @@ using UnityEngine;
 public class PlayerInControl : AIState
 {
     public Camera cam;
+    public int numberOfRays = 10; // Nombre de raycasts
+    public float arcAngle = 90f;  // Angle de l'arc en degrés
+    public float rayDistance = 5f; // Distance des raycasts
+    public float shoveCooldown = 0.2f;
+    private float shoveTimer = 0f;
 
     public override void Setup()
     {
@@ -18,10 +23,21 @@ public class PlayerInControl : AIState
     {
         //do nothing
         //this.Animator.SetBool("Idle",true);
+        shoveTimer += Time.deltaTime;
         Vector3 mousePos = Input.mousePosition;
         mousePos.z = Vector3.Distance(cam.transform.position, ai.transform.position);  // distance entre la caméra et l'objet
         Vector3 worldPosition = cam.ScreenToWorldPoint(mousePos);
         ai.LookTowards(worldPosition);
+        if (Input.GetKey(KeyCode.Mouse1) && shoveTimer > shoveCooldown)
+        {
+            CastArcRays();
+            shoveTimer = 0f;
+            //this.Animator.SetTrigger("Shove");
+        }
+        if (Input.GetKey(KeyCode.Mouse0) && ai.weapon != null)
+        {
+            ai.weapon.Shoot(ai.transform.forward);
+        }
 
     }
 
@@ -42,6 +58,40 @@ public class PlayerInControl : AIState
         this.Animator.SetBool("Moving", true);
     }
 
+    void CastArcRays()
+    {
+        // Calcul de l'angle de départ et d'incrément
+        float startAngle = -arcAngle / 2;
+        float angleIncrement = arcAngle / (numberOfRays - 1);
 
+        for (int i = 0; i < numberOfRays; i++)
+        {
+            // Calcul de l'angle en radians
+            float angle = startAngle + i * angleIncrement;
+            float angleRad = Mathf.Deg2Rad * angle;
+
+            // Direction du raycast en fonction de l'angle
+            Vector3 direction = new Vector3(Mathf.Sin(angleRad), 0, Mathf.Cos(angleRad));
+            direction = ai.transform.TransformDirection(direction); // Adapter à l'orientation du personnage
+
+            // Lancer le raycast
+            if (Physics.Raycast(ai.transform.position, direction, out RaycastHit hit, rayDistance))
+            {
+                Debug.DrawLine(ai.transform.position, hit.point, Color.red); // Visualiser les raycasts touchés
+                if(hit.collider.gameObject.GetComponent<AIbase>() != null)
+                {
+                    hit.collider.gameObject.GetComponent<AIbase>().AddState(new Stumble());
+                    Debug.Log("Hit wall");
+                }
+            }
+            else
+            {
+                Debug.DrawRay(ai.transform.position, direction * rayDistance, Color.green); // Visualiser les raycasts non touchés
+            }
+        }
+    }
 }
+
+
+
 

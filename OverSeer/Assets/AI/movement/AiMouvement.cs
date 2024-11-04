@@ -45,7 +45,7 @@ public class AiMouvement : mouvementscript
         
 
         this.QuakeMovementFunc(-x, z,false,false);
-        this.RotateActorTowards(pos,2f);
+        //this.RotateActorTowards(pos,2f);
     }
 
     public Vector2 obstacleAvoidance()
@@ -57,10 +57,10 @@ public class AiMouvement : mouvementscript
         {
             //Debug.DrawRay(transform.position, (transform.forward - transform.right) * 4f, Color.red, 1f);
             //Debug.DrawRay(transform.position, (transform.forward + transform.right) * 4f, Color.green, 1f);
-            Debug.Log(hit.collider.gameObject.layer);
+            
             if (((1 << hit.collider.gameObject.layer) & obstacleLayer) != 0 || ((1 << hit.collider.gameObject.layer) & other) != 0)
             {
-                ret.x = 1;
+                ret.x = 2;
                 Debug.Log("Dodged");
             }
             
@@ -69,10 +69,32 @@ public class AiMouvement : mouvementscript
         {
             if (((1 << hit.collider.gameObject.layer) & obstacleLayer) != 0 || ((1 << hit.collider.gameObject.layer) & other) != 0)
             {
-                ret.x = -1;
+                ret.x = -2;
                 Debug.Log("Dodged");
             }
             
+        }
+
+        if (Physics.Raycast(transform.position, transform.right, out hit, 2f))
+        {
+            //Debug.DrawRay(transform.position, (transform.forward - transform.right) * 4f, Color.red, 1f);
+            //Debug.DrawRay(transform.position, (transform.forward + transform.right) * 4f, Color.green, 1f);
+
+            if (((1 << hit.collider.gameObject.layer) & obstacleLayer) != 0 || ((1 << hit.collider.gameObject.layer) & other) != 0)
+            {
+                ret.x = 2;
+                Debug.Log("Dodged");
+            }
+
+        }
+        if (Physics.Raycast(transform.position, -transform.right, out hit, 2f))
+        {
+            if (((1 << hit.collider.gameObject.layer) & obstacleLayer) != 0 || ((1 << hit.collider.gameObject.layer) & other) != 0)
+            {
+                ret.x = -2;
+                Debug.Log("Dodged");
+            }
+
         }
 
         return ret;

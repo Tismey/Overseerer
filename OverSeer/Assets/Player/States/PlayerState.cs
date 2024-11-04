@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class PlayerState : AIbase
 {
-    public WeaponAbstract weapon;
     public float rotationSpeed;
     public string team;
     public override void LookTowards(Vector3 v)
