@@ -6,7 +6,7 @@ using UnityEngine.AI;
 public class ChaseTest : AIState
 {
         public Transform pos;
-        private Moving m;
+        private MovingAndClimb m;
       
         // Start is called before the first frame update
         public ChaseTest(Transform pos)
@@ -15,7 +15,7 @@ public class ChaseTest : AIState
         }
         public override void Setup()
         {
-            m = new Moving(pos);
+            m = new MovingAndClimb(pos);
             ai.AddState(m);
 
         }
@@ -25,7 +25,7 @@ public class ChaseTest : AIState
 
            if(Vector3.Distance(ai.transform.position, pos.position) > 5f)
            {
-                m = new Moving(pos);
+                m = new MovingAndClimb(pos);
                 ai.AddState(m);
                 return;
            }
