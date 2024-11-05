@@ -7,11 +7,14 @@ public class Climb : AIState
     // Start is called before the first frame update
     private float staggerTime = 0f;
     private Vector3 pos;
+    private Vector3 offset = new Vector3(0, 1f, 0);
+    private Vector3 surfaceDir;
 
 
-    public Climb(Vector3 pos)
+    public Climb(Vector3 pos, Vector3 surfaceDir)
     {
         this.pos = pos;
+        this.surfaceDir = surfaceDir;
     }
     public override void Setup()
     {
@@ -20,10 +23,16 @@ public class Climb : AIState
         this.ai.lockRoot.Lock();
         this.ai.noGravity = true;
         Debug.Log("Climb");
-        ai.transform.position = pos;
+        ai.transform.position += ((pos - offset) - ai.transform.position )* 2 * Time.deltaTime;
+        ai.transform.rotation = Quaternion.LookRotation(-surfaceDir);
     }
     public override void act()
     {
+        if(ai.transform.position.y < (pos - offset).y - 0.01f)
+        {
+            ai.transform.position += ((pos - offset) - ai.transform.position) * 2 * Time.deltaTime;
+        }
+      
         if (staggerTime < 0.05f)
         {
             this.ai.lockRoot.Lock();
@@ -62,7 +71,7 @@ public class Climb : AIState
 
     public override void Finish()
     {
-        ai.transform.position += ai.transform.forward * 1f;
+        ai.transform.position += ai.transform.forward * 0.5f;
         this.Animator.ResetTrigger("Climb");
         this.ai.lockRoot.Lock();
         this.ai.lockRoot.PreCalc();

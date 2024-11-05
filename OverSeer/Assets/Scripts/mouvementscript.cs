@@ -81,10 +81,24 @@ public abstract class mouvementscript : MonoBehaviour
                 else
                 {
                     float addspeed = Mathf.Clamp(MAXAIR - currentspeed, 0, MAXACCEL * Time.deltaTime);
-                    rb.velocity += (addspeed * wishdir * sprintm) + new Vector3(0, -9.81f * Time.fixedDeltaTime, 0);
+                    rb.velocity += (addspeed * wishdir * sprintm) + new Vector3(0, -20.81f * Time.fixedDeltaTime, 0);
                 }
 
             }
+    }
+
+    public bool IsGrounded()
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, -Vector3.up, out hit, Mathf.Infinity, layermask))
+        {
+            if (Mathf.Abs(hit.point.y - transform.position.y) < MAXHEIGTH)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public void RotateActorTowards(Vector3 pos, float rotationSpeed)

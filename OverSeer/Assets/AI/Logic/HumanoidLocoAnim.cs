@@ -28,6 +28,7 @@ public class HumanoidLocoAnim : AIbase
         if (canMove)
         {
             this.Animator.SetBool("Moving", true);
+            this.Animator.SetBool("Airborne", moveType.IsGrounded()) ;
             moveType.MoveActor(m_Position);
             UpdateAnimator();
         }
@@ -46,6 +47,7 @@ public class HumanoidLocoAnim : AIbase
             this.Animator.SetBool("Moving", false);
 
         }
+        
         //this.moveType.RotateActorTowards(test.position, 10f);
 
     }

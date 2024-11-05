@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.01535365, g: 0.022501707, b: 0.051391244, a: 1}
+  m_IndirectSpecularColor: {r: 0.015414454, g: 0.022636145, b: 0.051876783, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -906,7 +906,7 @@ MonoBehaviour:
   player: {fileID: 243618875}
   spawnEntitie: {fileID: 3702159874611141162, guid: b3d96df65c92fdf4ea0dcb7a06dd2681,
     type: 3}
-  numOfSpawn: 20
+  numOfSpawn: 40
   spawnRate: 0.2
   Wavenumber: 15
   WaveDelay: 20
@@ -1589,7 +1589,7 @@ MonoBehaviour:
   player: {fileID: 243618875}
   spawnEntitie: {fileID: 3702159874611141162, guid: b3d96df65c92fdf4ea0dcb7a06dd2681,
     type: 3}
-  numOfSpawn: 25
+  numOfSpawn: 20
   spawnRate: 0.2
   Wavenumber: 15
   WaveDelay: 20
@@ -2437,7 +2437,7 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 1
+  orthographic: 0
   orthographic size: 30
   m_Depth: -1
   m_CullingMask:
@@ -2723,7 +2723,7 @@ MonoBehaviour:
   player: {fileID: 243618875}
   spawnEntitie: {fileID: 3702159874611141162, guid: b3d96df65c92fdf4ea0dcb7a06dd2681,
     type: 3}
-  numOfSpawn: 20
+  numOfSpawn: 10
   spawnRate: 0.2
   Wavenumber: 15
   WaveDelay: 20

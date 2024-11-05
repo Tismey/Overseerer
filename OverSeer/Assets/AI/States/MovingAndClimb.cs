@@ -54,29 +54,34 @@ using UnityEngine.AI;
                 }
                 if (!Physics.Raycast(ai.transform.position + maxClimb, ai.transform.forward, out hit, 2f))
                 {
-                    for (float i = 0; i < maxClimb.y; i += 0.1f)
-                    {
-                        if (Physics.Raycast(ai.transform.position + new Vector3(0, maxClimb.y - i, 0), ai.transform.forward, out hit, 2f))
-                        {
-                        if (hit.collider.gameObject.layer != 6)
-                        {
+                    
+                     for (float i = 0; i < maxClimb.y; i += 0.1f)
+                     {
+                         if (Physics.Raycast(ai.transform.position + new Vector3(0, maxClimb.y - i, 0), ai.transform.forward, out hit, 2f))
+                         {
+                              if (hit.collider.gameObject.layer != 6)
+                              {
 
-                            continue;
-                        }
-                        ai.AddState(new Climb(hit.point));
-                            return;
-                        }
-                    }
+                                  continue;
+                              }
+                              hit.normal = new Vector3(hit.normal.x, 0, hit.normal.z);
+                              ai.AddState(new Climb(hit.point,hit.normal));
+                              return;
+                         }
+                     }
+                    
+                   
                 }
             }
-        if (!hasPath)
+        if (!hasPath || nav.status == NavMeshPathStatus.PathPartial)
             {
                 Debug.Log("No path found");
                 ai.SetMoveVector(pos);
-                return;
+                this.hasPath = NavMesh.CalculatePath(ai.transform.position, pos + (lead * Vector3.Distance(pos, ai.transform.position) * 2), NavMesh.AllAreas, nav);
+            return;
             }
 
-            if (Vector3.Distance(pos, ai.transform.position) <= 2.1f)
+            if (Vector3.Distance(pos, ai.transform.position) <= 3.1f)
             {
                 Debug.Log("Arrived at destination");
                 this.hasEnded = true;
@@ -84,7 +89,7 @@ using UnityEngine.AI;
             }
             if (currentCorner >= nav.corners.Length)
             {
-                this.hasEnded = true;
+                currentCorner = 0;
                 return;
             }
             Vector3 aiPosition = ai.transform.position;
@@ -100,6 +105,7 @@ using UnityEngine.AI;
                 ai.SetMoveVector(nav.corners[currentCorner]);
                 this.hasPath = NavMesh.CalculatePath(ai.transform.position, pos + (lead * Vector3.Distance(pos, ai.transform.position) * 2), NavMesh.AllAreas, nav);
                 currentCorner = 0;
+
 
             }
             else
