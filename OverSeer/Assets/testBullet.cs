@@ -15,6 +15,7 @@ public class testBullet : MonoBehaviour
         prevt = transform.position;
     }
 
+
     // Update is called once per frame
     void FixedUpdate()
     {

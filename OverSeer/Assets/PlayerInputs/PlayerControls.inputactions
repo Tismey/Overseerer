@@ -1,0 +1,74 @@
+{
+    "name": "PlayerControls",
+    "maps": [
+        {
+            "name": "PlayerMouvement",
+            "id": "4e1f43ff-31da-43bd-8e56-6af8423f7e05",
+            "actions": [
+                {
+                    "name": "Horizontal",
+                    "type": "Value",
+                    "id": "dc91a125-e012-49fd-aaf5-8a568e3144d7",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Vertical",
+                    "type": "Value",
+                    "id": "5caca21b-25d7-4c17-9580-392db49778e7",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Mouvement",
+                    "type": "Value",
+                    "id": "06167c7f-ca71-464e-b082-a2343f511db5",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "649eaf24-89ff-4009-a205-eeb01dbb896f",
+                    "path": "<Gamepad>/leftStick/x",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Horizontal",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "bdbab671-dae4-41e1-a293-a1892e32ea35",
+                    "path": "<Gamepad>/leftStick/y",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Vertical",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "05cbdf80-aeec-4a91-9697-b35f7f8bfee0",
+                    "path": "<Gamepad>/leftStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Mouvement",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 public class PlayerState : AIbase
 {
+
     public float rotationSpeed;
     public string team;
     public override void LookTowards(Vector3 v)
@@ -32,7 +32,8 @@ public class PlayerState : AIbase
         {
             if (!noGravity)
             {
-                moveType.MoveActor(transform.position);
+                //moveType.MoveActor(transform.position);
+                rb.velocity = Vector3.zero;
 
             }
             else
@@ -43,6 +44,8 @@ public class PlayerState : AIbase
             this.Animator.SetBool("Moving", false);
 
         }
+
+
         //this.moveType.RotateActorTowards(test.position, 10f);
 
     }

@@ -94,6 +94,9 @@ MonoBehaviour:
   teamInteract:
   - Player
   bullet: {fileID: 2920573980613839612, guid: 03efd33cfad75a04eb5c751795bc777e, type: 3}
+  hitlayer:
+    serializedVersion: 2
+    m_Bits: 512
 --- !u!1 &7087689057072121188
 GameObject:
   m_ObjectHideFlags: 0

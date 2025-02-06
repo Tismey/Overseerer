@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using static UnityEngine.UI.Image;
+
 
 public abstract class AIbase : MonoBehaviour
 {   

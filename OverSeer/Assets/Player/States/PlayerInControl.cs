@@ -7,7 +7,7 @@ public class PlayerInControl : AIState
     public int numberOfRays = 10; // Nombre de raycasts
     public float arcAngle = 90f;  // Angle de l'arc en degrés
     public float rayDistance = 5f; // Distance des raycasts
-    public float shoveCooldown = 0.2f;
+    public float shoveCooldown = 1f;
     private float shoveTimer = 0f;
 
     public override void Setup()
@@ -31,7 +31,7 @@ public class PlayerInControl : AIState
         if (Input.GetKey(KeyCode.Mouse1) && shoveTimer > shoveCooldown)
         {
             CastArcRays();
-            shoveTimer = 0f;
+            
             //this.Animator.SetTrigger("Shove");
         }
         if (Input.GetKey(KeyCode.Mouse0) && ai.weapon != null)
@@ -43,17 +43,20 @@ public class PlayerInControl : AIState
 
     public override void Interupt()
     {
+        this.ai.canMove = false;
         this.Animator.SetBool("Moving", false);
         this.ai.lockRoot.Lock();
     }
 
     public override void Finish()
     {
+        this.ai.canMove = false;
         this.Animator.SetBool("Moving", false);
     }
 
     public override void Continue()
     {
+        this.ai.canMove = true;
         this.ai.lockRoot.MoveWithAnim();
         this.Animator.SetBool("Moving", true);
     }
@@ -81,7 +84,8 @@ public class PlayerInControl : AIState
                 if(hit.collider.gameObject.GetComponent<AIbase>() != null)
                 {
                     hit.collider.gameObject.GetComponent<AIbase>().AddState(new Stumble());
-                    Debug.Log("Hit wall");
+                    shoveTimer = 0f;
+              
                 }
             }
             else

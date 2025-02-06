@@ -7,6 +7,7 @@ public class Attack : AIState
     public float MaxRange;
     public float cooldown;
     private float timer = 0;
+    private bool attacking = false;
 
     public Attack(float m, float c)
     {
@@ -16,7 +17,7 @@ public class Attack : AIState
 
     public override void Setup()
     {
-        this.Animator.SetBool("Combat", true);
+        //this.Animator.SetBool("Combat", true);
         
     }
 
@@ -30,14 +31,13 @@ public class Attack : AIState
         
         var e = GetClosestEnemy();
        if (e != null)
-        {
+       {
             ai.LookTowards(e.GetEyePosition());
             AttackEnemy();
-        }
-        else
-        {
-            timer += Time.deltaTime;
-        }
+       }
+       
+        timer += Time.deltaTime;
+       
 
         if (timer > cooldown)
         {
@@ -54,7 +54,7 @@ public class Attack : AIState
             if (ai.IsSeing(a))
             {
                 float d = Vector3.Distance(a.transform.position, ai.transform.position);
-                if(d > MaxRange)
+                if(d > MaxRange*5)
                 {
                     continue;
                 }
@@ -70,7 +70,25 @@ public class Attack : AIState
 
     private void AttackEnemy()
     {
-        Debug.Log("Attacking");
+        this.Animator.SetBool("Combat", true);
+        if (timer > cooldown/2 && !attacking)
+        {
+            RaycastHit hit;
+            if(Physics.Raycast(ai.GetEyePosition(), ai.transform.forward, out hit, MaxRange))
+            {
+                if (hit.collider.gameObject.GetComponent<AIbase>() != null)
+                {
+                    var a = hit.collider.gameObject.GetComponent<AIbase>();
+                    if(a.teamName == "Player")
+                    {
+                        attacking = true;
+                        a.AddState(new Down());
+                        Debug.Log("Attacking");
+                    }
+
+                }
+            }
+        }
         //this.Animator.SetBool("Combat", true);
     }
 
