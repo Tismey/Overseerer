@@ -11,7 +11,7 @@ public abstract class AIbase : MonoBehaviour
     private List<AIState> states = new List<AIState>();
     private Transform eyePosition;
     private Vector3 previousPosition;
-
+    public bool isPlayer = false;
     public float turnSpeed;
     public mouvementscript moveType;
     public Animator Animator;
@@ -34,25 +34,28 @@ public abstract class AIbase : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        previousPosition = transform.position;
-        Population.Add(this);
-        eyePosition = transform;
-        if(ragdollHolder != null)
-        {
-            ragdollRigidbodies = ragdollHolder.GetComponentsInChildren<Rigidbody>(true);
-            Debug.Log("Ragdoll rigidbodies : " + ragdollRigidbodies.Length);
-            SetRagdollState(false);
-        }
+        
         
         
         // Désactive tous les Rigidbody au début
         
     }
 
-    void Start()
+    public void Start()
     {
         moveType = gameObject.GetComponent<mouvementscript>();
-        
+
+        previousPosition = transform.position;
+        Population.Add(this);
+        Debug.Log("Population size : " + Population.Count);
+        eyePosition = transform;
+        if (ragdollHolder != null)
+        {
+            ragdollRigidbodies = ragdollHolder.GetComponentsInChildren<Rigidbody>(true);
+            Debug.Log("Ragdoll rigidbodies : " + ragdollRigidbodies.Length);
+            SetRagdollState(false);
+        }
+
 
     }
 

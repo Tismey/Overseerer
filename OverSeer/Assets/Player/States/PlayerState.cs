@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 public class PlayerState : AIbase
 {
@@ -11,10 +12,16 @@ public class PlayerState : AIbase
         moveType.RotateActorTowards(v, rotationSpeed);
     }
 
-    void Start()
+    new void Start()
     {
+        base.Start();
         this.team = teamName;
         this.AddState(new PlayerInControl());
+    }
+
+    private void Awake()
+    {
+        isPlayer = true;
     }
 
 

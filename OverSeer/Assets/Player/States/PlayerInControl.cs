@@ -9,6 +9,7 @@ public class PlayerInControl : AIState
     public float rayDistance = 5f; // Distance des raycasts
     public float shoveCooldown = 1f;
     private float shoveTimer = 0f;
+    private PlayerMouvement playerMouvement;
 
     public override void Setup()
     {
@@ -17,6 +18,7 @@ public class PlayerInControl : AIState
         this.ai.canMove = true;
         cam = Camera.main;
         Cursor.lockState = CursorLockMode.None;
+        playerMouvement = ai.GetComponent<PlayerMouvement>();
 
     }
     public override void act()
@@ -27,14 +29,15 @@ public class PlayerInControl : AIState
         Vector3 mousePos = Input.mousePosition;
         mousePos.z = Vector3.Distance(cam.transform.position, ai.transform.position);  // distance entre la caméra et l'objet
         Vector3 worldPosition = cam.ScreenToWorldPoint(mousePos);
-        ai.LookTowards(worldPosition);
-        if (Input.GetKey(KeyCode.Mouse1) && shoveTimer > shoveCooldown)
+        Vector3 viewDirection = new Vector3(ai.transform.position.x + playerMouvement.viewInput.x, ai.transform.position.y, ai.transform.position.z + playerMouvement.viewInput.y);
+        ai.LookTowards(viewDirection);
+        if (playerMouvement.ShoveInput && shoveTimer > shoveCooldown)
         {
             CastArcRays();
             
             //this.Animator.SetTrigger("Shove");
         }
-        if (Input.GetKey(KeyCode.Mouse0) && ai.weapon != null)
+        if (playerMouvement.ShootInput && ai.weapon != null)
         {
             ai.weapon.Shoot(ai.transform.forward);
         }

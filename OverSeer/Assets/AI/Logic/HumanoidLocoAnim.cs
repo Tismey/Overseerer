@@ -14,8 +14,9 @@ public class HumanoidLocoAnim : AIbase
         moveType.RotateActorTowards(v,rotationSpeed);
     }
 
-    void Start()
+    new void Start()
     {
+        base.Start();
         this.team = teamName;
         //this.AddState(new Idle());
     }

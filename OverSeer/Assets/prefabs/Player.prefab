@@ -1559,7 +1559,7 @@ MonoBehaviour:
     m_ActionName: PlayerMouvement/Vertical[/XInputControllerWindows/leftStick/y,/XInputControllerWindows1/leftStick/y]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
-  m_DefaultActionMap: 4e1f43ff-31da-43bd-8e56-6af8423f7e05
+  m_DefaultActionMap: PlayerMouvement
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
 --- !u!1 &7770970780172473380

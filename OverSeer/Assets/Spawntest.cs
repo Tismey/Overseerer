@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Spawntest : MonoBehaviour
@@ -14,6 +15,7 @@ public class Spawntest : MonoBehaviour
     public int WaveDelay;
     private float nextWave = 0;
     private float nextSpawn = 0;
+    HashSet<AIbase> players = new HashSet<AIbase>();
     // Start is called before the first frame update
     void Start()
     {
@@ -23,17 +25,35 @@ public class Spawntest : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(AIbase.Population.Count > 30)
+
+        var l = AIbase.Population;
+        foreach (AIbase ai in l)
+        {
+
+            if (ai.isPlayer)
+            {
+                players.Add(ai);
+            }
+        }
+        if(players.Count == 0)
+        {
+            Debug.Log("No players");
+            return;
+        }
+        if (AIbase.Population.Count > 30)
         {
             return;
         }
+        
+        AIbase randomPlayer = players.ElementAt(Random.Range(0, players.Count));
         nextSpawn += Time.deltaTime;
         if(nextSpawn >= spawnRate && numOfSpawn > 0 && Wavenumber > 0 )
         {
-              nextSpawn = 0;
+            Debug.Log("Spawning");
+            nextSpawn = 0;
               numOfSpawn--;
               GameObject go = Instantiate(spawnEntitie,transform.position, Quaternion.identity);
-              go.GetComponent<AIbase>().AddState(new ChaseTest(player));
+              go.GetComponent<AIbase>().AddState(new ChaseTest(randomPlayer.transform));
               
 
         }
