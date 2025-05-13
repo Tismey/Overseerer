@@ -88,7 +88,7 @@ public abstract class WeaponAbstract : MonoBehaviour
         fireTimer += Time.deltaTime;
     }
 
-    public void Shoot(Vector3 dir)
+    public void Shoot(Vector3 dir,Vector3 pos)
     {   
         if (fireTimer < fireRate)
         {
@@ -101,10 +101,10 @@ public abstract class WeaponAbstract : MonoBehaviour
             return;
         }
         fireTimer = 0f;
-        ShotBehavior(dir);
+        ShotBehavior(dir,pos);
         currentClip--;
     }
-    public abstract void ShotBehavior(Vector3 dir);
+    public abstract void ShotBehavior(Vector3 dir,Vector3 pos);
 
     public abstract void ReloadBehavior();
     public void Reload()

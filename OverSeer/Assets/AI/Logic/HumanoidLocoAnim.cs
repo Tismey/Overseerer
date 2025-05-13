@@ -38,10 +38,14 @@ public class HumanoidLocoAnim : AIbase
             if (!noGravity)
             {
                 moveType.MoveActor(transform.position);
+                if(!rb.detectCollisions)
+                     rb.detectCollisions = true;
 
             }
             else
             {
+                if (rb.detectCollisions)
+                    rb.detectCollisions = false;
                 rb.velocity = Vector3.zero;
             }
 

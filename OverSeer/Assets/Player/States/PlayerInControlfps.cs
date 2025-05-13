@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-public class PlayerInControl : AIState
+public class PlayerInControlfps : AIState
 {
     public Camera cam;
     public int numberOfRays = 10; // Nombre de raycasts
@@ -17,7 +17,7 @@ public class PlayerInControl : AIState
         this.ai.lockRoot.Lock();
         this.ai.canMove = true;
         cam = Camera.main;
-        Cursor.lockState = CursorLockMode.None;
+        Cursor.lockState = CursorLockMode.Locked;
         playerMouvement = ai.GetComponent<PlayerMouvement>();
 
     }
@@ -26,11 +26,7 @@ public class PlayerInControl : AIState
         //do nothing
         //this.Animator.SetBool("Idle",true);
         shoveTimer += Time.deltaTime;
-        Vector3 mousePos = Input.mousePosition;
-        mousePos.z = Vector3.Distance(cam.transform.position, ai.transform.position);  // distance entre la caméra et l'objet
-        Vector3 worldPosition = cam.ScreenToWorldPoint(mousePos);
-        Vector3 viewDirection = new Vector3(ai.transform.position.x + playerMouvement.viewInput.x, ai.transform.position.y, ai.transform.position.z + playerMouvement.viewInput.y);
-        ai.LookTowards(viewDirection);
+
         if (playerMouvement.ShoveInput && shoveTimer > shoveCooldown)
         {
             CastArcRays();
@@ -39,7 +35,7 @@ public class PlayerInControl : AIState
         }
         if (playerMouvement.ShootInput && ai.weapon != null)
         {
-            ai.weapon.Shoot(cam.transform.forward,ai.eyePosition.position); ;
+            ai.weapon.Shoot(ai.eyePosition.forward,ai.eyePosition.position);
         }
 
     }

@@ -18,7 +18,7 @@ public class PlayerMouvement : mouvementscript
     void Awake()
     {
         shootAction = GetComponent<PlayerInput>().actions["Shoot"];
-        shoveAction = GetComponent<PlayerInput>().actions["Shove"]; ;
+        shoveAction = GetComponent<PlayerInput>().actions["Shove"]; 
     }
 
     private void Update()
@@ -38,6 +38,7 @@ public class PlayerMouvement : mouvementscript
     public void OnMouvement(InputValue value)
     {
         movementInput = value.Get<Vector2>();
+        Debug.Log(movementInput);
         
     }
 

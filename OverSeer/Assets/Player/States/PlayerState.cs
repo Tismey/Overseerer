@@ -16,7 +16,7 @@ public class PlayerState : AIbase
     {
         base.Start();
         this.team = teamName;
-        this.AddState(new PlayerInControl());
+        this.AddState(new PlayerInControlfps());
     }
 
     private void Awake()

@@ -7,7 +7,7 @@ public class Ak47Script : WeaponAbstract
 {
     public GameObject bullet;
     public LayerMask hitlayer;
-    public override void ShotBehavior(Vector3 dir)
+    public override void ShotBehavior(Vector3 dir, Vector3 pos)
     {
         RaycastHit hit;
 
@@ -20,7 +20,7 @@ public class Ak47Script : WeaponAbstract
                 
             }
         }
-        var b  = Instantiate(bullet, muzzle.position - owner.transform.forward *5, muzzle.rotation);
+        var b  = Instantiate(bullet, pos + owner.transform.forward , muzzle.rotation);
         b.GetComponent<Rigidbody>().AddForce(dir * 10000f);
     }
 

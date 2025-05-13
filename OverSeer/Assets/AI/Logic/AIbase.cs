@@ -9,7 +9,7 @@ public abstract class AIbase : MonoBehaviour
     protected Vector3 m_Position;
     private bool b_think = false;
     private List<AIState> states = new List<AIState>();
-    private Transform eyePosition;
+    public Transform eyePosition;
     private Vector3 previousPosition;
     public bool isPlayer = false;
     public float turnSpeed;
@@ -48,7 +48,10 @@ public abstract class AIbase : MonoBehaviour
         previousPosition = transform.position;
         Population.Add(this);
         Debug.Log("Population size : " + Population.Count);
-        eyePosition = transform;
+        if(eyePosition == null)
+        {
+            eyePosition = transform;
+        }
         if (ragdollHolder != null)
         {
             ragdollRigidbodies = ragdollHolder.GetComponentsInChildren<Rigidbody>(true);
@@ -65,8 +68,6 @@ public abstract class AIbase : MonoBehaviour
     void FixedUpdate()
     {   
         AIthink();
-
-        Debug.Log("States : " + states.Count);
     }
 
     protected void UpdateAnimator()
