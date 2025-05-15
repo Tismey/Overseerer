@@ -35,7 +35,7 @@ public class cameraFollow : MonoBehaviour
         }
 
         Vector3 averagePosition = sum / players.Count;
-        Debug.Log("count =" + players.Count);
+       
         if (players.Count == 0)
         {
            ;

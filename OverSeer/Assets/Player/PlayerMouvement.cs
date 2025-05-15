@@ -12,19 +12,24 @@ public class PlayerMouvement : mouvementscript
     public Vector2 viewInput;
     public bool ShootInput;
     public bool ShoveInput;
+    public bool JumpInput;
     private InputAction shootAction;
     private InputAction shoveAction;
+    private InputAction jumpAction;
     // Start is called before the first frame update
     void Awake()
     {
         shootAction = GetComponent<PlayerInput>().actions["Shoot"];
-        shoveAction = GetComponent<PlayerInput>().actions["Shove"]; 
+        shoveAction = GetComponent<PlayerInput>().actions["Shove"];
+        jumpAction = GetComponent<PlayerInput>().actions["Jump"];
     }
 
     private void Update()
     {
         ShootInput = shootAction.ReadValue<float>() > 0.9f;
         ShoveInput = shoveAction.ReadValue<float>() > 0.1f;
+        if(!JumpInput)
+            JumpInput = jumpAction.ReadValue<float>() > 0.1f;
     }
 
     // Update is called once per frame
@@ -32,13 +37,13 @@ public class PlayerMouvement : mouvementscript
     public override void MoveActor(Vector3 pos)
     {
        
-        this.QuakeMovementFunc(movementInput.x, movementInput.y, Input.GetKey(KeyCode.LeftShift), Input.GetKeyDown(KeyCode.Space));
+        this.QuakeMovementFunc(movementInput.x, movementInput.y, Input.GetKey(KeyCode.LeftShift), JumpInput);
+        JumpInput = false;
     }
 
     public void OnMouvement(InputValue value)
     {
         movementInput = value.Get<Vector2>();
-        Debug.Log(movementInput);
         
     }
 

@@ -1,15 +1,37 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 public class PlayerInControlfps : AIState
 {
     public Camera cam;
     public int numberOfRays = 10; // Nombre de raycasts
-    public float arcAngle = 90f;  // Angle de l'arc en degr�s
+    public float arcAngle = 90f;  // Angle de l'arc en degrés
     public float rayDistance = 5f; // Distance des raycasts
     public float shoveCooldown = 1f;
     private float shoveTimer = 0f;
     private PlayerMouvement playerMouvement;
+
+    [Header("Recoil Settings")]
+    [Tooltip("Angle (in degrees) the camera is kicked up on fire.")]
+    public float recoilAngle = 20f;
+    [Tooltip("How snappy the kick is (higher → faster).")]
+    public float snappiness = 2f;
+    [Tooltip("How quickly the camera returns to neutral.")]
+    public float returnSpeed = 30f;
+    private Quaternion baseRotation;
+    public Transform recoilJoint;
+    // Internal state for recoil
+    private float currentRecoil = 0f;
+    private float targetRecoil = 0f;
+
+    [Header("Shake Settings")]
+    [Tooltip("Amplitude max du shake (en degrés)")]
+    public float shakeIntensity = 1f;
+    [Tooltip("Vitesse de décroissance du shake")]
+    public float shakeDecay = 5f;
+
+    float shakeAmount;
+    Vector2 jitter;
 
     public override void Setup()
     {
@@ -19,6 +41,9 @@ public class PlayerInControlfps : AIState
         cam = Camera.main;
         Cursor.lockState = CursorLockMode.Locked;
         playerMouvement = ai.GetComponent<PlayerMouvement>();
+        recoilJoint = ai.eyePosition.parent.transform;
+        baseRotation = recoilJoint.localRotation;
+
 
     }
     public override void act()
@@ -26,7 +51,7 @@ public class PlayerInControlfps : AIState
         //do nothing
         //this.Animator.SetBool("Idle",true);
         shoveTimer += Time.deltaTime;
-
+        UpdateRecoil();
         if (playerMouvement.ShoveInput && shoveTimer > shoveCooldown)
         {
             CastArcRays();
@@ -36,6 +61,8 @@ public class PlayerInControlfps : AIState
         if (playerMouvement.ShootInput && ai.weapon != null)
         {
             ai.weapon.Shoot(ai.eyePosition.forward,ai.eyePosition.position);
+            if(ai.weapon.CanShoot())
+                ApplyRecoil();
         }
 
     }
@@ -62,7 +89,7 @@ public class PlayerInControlfps : AIState
 
     void CastArcRays()
     {
-        // Calcul de l'angle de d�part et d'incr�ment
+        // Calcul de l'angle de départ et d'incrément
         float startAngle = -arcAngle / 2;
         float angleIncrement = arcAngle / (numberOfRays - 1);
 
@@ -74,12 +101,12 @@ public class PlayerInControlfps : AIState
 
             // Direction du raycast en fonction de l'angle
             Vector3 direction = new Vector3(Mathf.Sin(angleRad), 0, Mathf.Cos(angleRad));
-            direction = ai.transform.TransformDirection(direction); // Adapter � l'orientation du personnage
+            direction = ai.transform.TransformDirection(direction); // Adapter à l'orientation du personnage
 
             // Lancer le raycast
             if (Physics.Raycast(ai.transform.position, direction, out RaycastHit hit, rayDistance))
             {
-                Debug.DrawLine(ai.transform.position, hit.point, Color.red); // Visualiser les raycasts touch�s
+                Debug.DrawLine(ai.transform.position, hit.point, Color.red); // Visualiser les raycasts touchés
                 if(hit.collider.gameObject.GetComponent<AIbase>() != null)
                 {
                     hit.collider.gameObject.GetComponent<AIbase>().AddState(new Stumble());
@@ -89,9 +116,40 @@ public class PlayerInControlfps : AIState
             }
             else
             {
-                Debug.DrawRay(ai.transform.position, direction * rayDistance, Color.green); // Visualiser les raycasts non touch�s
+                Debug.DrawRay(ai.transform.position, direction * rayDistance, Color.green); // Visualiser les raycasts non touchés
             }
         }
+    }
+
+    private void UpdateRecoil()
+    {
+        // 1) Recoil interp
+        // 1) Recoil interpolation
+        currentRecoil = Mathf.Lerp(currentRecoil, targetRecoil, Time.deltaTime * snappiness);
+        targetRecoil = Mathf.Lerp(targetRecoil, 0f, Time.deltaTime * returnSpeed);
+
+        // 2) Shake decay
+        shakeAmount = Mathf.Lerp(shakeAmount, 0f, Time.deltaTime * shakeDecay);
+
+        // 3) Random jitter vector
+
+        // 4) Build a combined rotation:
+        //    – recoil on pitch (X)
+        //    – shake on pitch (Y jitter) and yaw (X jitter)
+        Quaternion recoilRot = Quaternion.Euler(-currentRecoil, 0f, 0f);
+        Quaternion shakeRot = Quaternion.Euler(jitter.y, jitter.x, 0f);
+
+        // 5) Always apply on top of the original baseRotation
+        recoilJoint.localRotation = baseRotation * recoilRot * shakeRot;
+    }
+
+
+
+    public void ApplyRecoil()
+    {
+        shakeAmount = shakeIntensity;
+        jitter = Random.insideUnitCircle * shakeAmount;
+        targetRecoil = targetRecoil + recoilAngle;
     }
 }
 

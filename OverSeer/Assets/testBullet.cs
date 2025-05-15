@@ -8,6 +8,7 @@ public class testBullet : MonoBehaviour
     private Vector3 prevt;
     public LayerMask hitlayer;
     public GameObject hitEffect;
+    public float damage = 34f;
     private float timer = 0f;
     // Start is called before the first frame update
     void Start()
@@ -29,13 +30,15 @@ public class testBullet : MonoBehaviour
         {
             if (hit.collider.gameObject.GetComponent<AIbase>() != null)
             {   
-                AIbase.Population.Remove(hit.collider.gameObject.GetComponent<AIbase>());
-                hit.collider.gameObject.GetComponent<AIbase>().AddState(new Die());
+                
+                hit.collider.gameObject.GetComponent<AIbase>().health.ApplyDamage(damage);
+                hit.collider.gameObject.GetComponent<AIbase>().rb.AddForce(-(prevt-transform.position)*(damage/10),ForceMode.VelocityChange);
+
+
                 Instantiate(hitEffect, hit.point, Quaternion.identity);
             }
             else
             {
-                Debug.Log("Hit " + hit.collider.name);
                 Destroy(gameObject);
                 return;
             }

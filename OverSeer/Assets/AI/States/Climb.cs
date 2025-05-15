@@ -22,7 +22,6 @@ public class Climb : AIState
         this.Animator.SetTrigger("Climb");
         this.ai.lockRoot.Lock();
         this.ai.noGravity = true;
-        Debug.Log("Climb");
         ai.transform.position += ((pos - offset) - ai.transform.position )* 2 * Time.deltaTime;
         ai.transform.rotation = Quaternion.LookRotation(-surfaceDir);
     }

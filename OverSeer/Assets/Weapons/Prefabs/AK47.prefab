@@ -88,7 +88,7 @@ MonoBehaviour:
   maxClip: 40
   currentClip: 0
   reloadTime: 2
-  fireRate: 0.3
+  fireRate: 0.1
   damage: 30
   acuracy: 0
   teamInteract:

@@ -63,17 +63,18 @@ public abstract class mouvementscript : MonoBehaviour
             {
                 if (Mathf.Abs(hit.point.y - transform.position.y) < MAXHEIGTH)
                 {
-                  
-                    transform.position = new Vector3(transform.position.x,transform.position.y + (MAXHEIGTH - Mathf.Abs(hit.point.y - transform.position.y)),transform.position.z);
+                if (jump)
+                {
+                    rb.velocity += new Vector3(0, -rb.velocity.y + jumpHeight, 0);
+                    return;
+                }
+
+                    transform.position = new Vector3(transform.position.x,hit.point.y + MAXHEIGTH,transform.position.z);
                     rb.velocity += new Vector3(-rb.velocity.x/decay, 0, -rb.velocity.z/decay);
                     float addspeed = Mathf.Clamp(MAXSPEED - currentspeed, 0, MAXACCEL * Time.fixedDeltaTime);
                     rb.velocity += (addspeed * wishdir * sprintm);
 
-                    if (jump)
-                    {
-
-                        rb.velocity += new Vector3(0, -rb.velocity.y + jumpHeight, 0);
-                    }
+                   
 
                 }
                 else
@@ -82,6 +83,11 @@ public abstract class mouvementscript : MonoBehaviour
                     rb.velocity += (addspeed * wishdir * sprintm) + new Vector3(0, -20.81f * Time.fixedDeltaTime, 0);
                 }
 
+            }
+            else
+            {
+                float addspeed = Mathf.Clamp(MAXAIR - currentspeed, 0, MAXACCEL * Time.deltaTime);
+                rb.velocity += (addspeed * wishdir * sprintm) + new Vector3(0, -20.81f * Time.fixedDeltaTime, 0);
             }
     }
 

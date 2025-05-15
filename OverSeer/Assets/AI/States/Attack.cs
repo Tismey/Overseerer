@@ -7,6 +7,7 @@ public class Attack : AIState
     public float MaxRange;
     public float cooldown;
     private float timer = 0;
+    private float damage = 20;
     private bool attacking = false;
 
     public Attack(float m, float c)
@@ -82,8 +83,8 @@ public class Attack : AIState
                     if(a.teamName == "Player")
                     {
                         attacking = true;
-                        a.AddState(new Down());
-                        Debug.Log("Attacking");
+                        a.health.ApplyDamage(damage);
+                       
                     }
 
                 }

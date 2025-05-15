@@ -11,6 +11,7 @@ public class Die : AIState
         ai.SetRagdollState(true);
         ai.ragdollHolder.transform.parent = null;
         ai.Animator.enabled = false;
+        AIbase.Population.Remove(ai);
         GameObject.Destroy(ai.gameObject);
         return;
     }

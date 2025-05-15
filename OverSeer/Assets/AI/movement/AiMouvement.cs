@@ -61,7 +61,7 @@ public class AiMouvement : mouvementscript
             if (((1 << hit.collider.gameObject.layer) & obstacleLayer) != 0 || ((1 << hit.collider.gameObject.layer) & other) != 0)
             {
                 ret.x = 2;
-                Debug.Log("Dodged");
+       
             }
             
         }
@@ -70,7 +70,7 @@ public class AiMouvement : mouvementscript
             if (((1 << hit.collider.gameObject.layer) & obstacleLayer) != 0 || ((1 << hit.collider.gameObject.layer) & other) != 0)
             {
                 ret.x = -2;
-                Debug.Log("Dodged");
+        
             }
             
         }
@@ -83,7 +83,7 @@ public class AiMouvement : mouvementscript
             if (((1 << hit.collider.gameObject.layer) & obstacleLayer) != 0 || ((1 << hit.collider.gameObject.layer) & other) != 0)
             {
                 ret.x = 2;
-                Debug.Log("Dodged");
+     
             }
 
         }
@@ -92,7 +92,7 @@ public class AiMouvement : mouvementscript
             if (((1 << hit.collider.gameObject.layer) & obstacleLayer) != 0 || ((1 << hit.collider.gameObject.layer) & other) != 0)
             {
                 ret.x = -2;
-                Debug.Log("Dodged");
+            
             }
 
         }

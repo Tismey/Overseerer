@@ -83,7 +83,7 @@ using UnityEngine.AI;
 
             if (Vector3.Distance(pos, ai.transform.position) <= 3.1f)
             {
-                Debug.Log("Arrived at destination");
+                
                 this.hasEnded = true;
                 return;
             }
@@ -101,7 +101,7 @@ using UnityEngine.AI;
 
             if (Vector3.Distance(aiPosition, cornerPosition) > 2f)
             {
-                Debug.Log("Moving....");
+               
                 ai.SetMoveVector(nav.corners[currentCorner]);
                 this.hasPath = NavMesh.CalculatePath(ai.transform.position, pos + (lead * Vector3.Distance(pos, ai.transform.position) * 2), NavMesh.AllAreas, nav);
                 currentCorner = 0;
@@ -110,7 +110,7 @@ using UnityEngine.AI;
             }
             else
             {
-                Debug.Log("Moving to next corner");
+              
                 if (isTrans)
                 {
 

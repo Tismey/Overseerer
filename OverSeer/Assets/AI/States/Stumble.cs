@@ -13,7 +13,7 @@ public class Stumble : AIState
         this.Animator.SetFloat("StaggerBlend",(float)Random.Range(0,3));
         this.ai.lockRoot.Lock();
         this.ai.noGravity = true;
-        Debug.Log("Stagger");
+     
     }
     public override void act()
     {

@@ -28,6 +28,8 @@ public abstract class AIbase : MonoBehaviour
     public WeaponAbstract weapon;
     public LockRoot lockRoot;
 
+    public Healthcontroller health;
+
     private Rigidbody[] ragdollRigidbodies;
     public GameObject ragdollHolder;
 
@@ -44,6 +46,7 @@ public abstract class AIbase : MonoBehaviour
     public void Start()
     {
         moveType = gameObject.GetComponent<mouvementscript>();
+        health = gameObject.GetComponent<Healthcontroller>();
 
         previousPosition = transform.position;
         Population.Add(this);
@@ -104,7 +107,7 @@ public abstract class AIbase : MonoBehaviour
 
         if(states[states.Count - 1].WasInterupted())
         {
-            Debug.Log("Interupted");
+            
             states[states.Count - 1].SetInterupted(false);
             states[states.Count - 1].Continue();
         }
@@ -196,10 +199,22 @@ public abstract class AIbase : MonoBehaviour
 
     public void SetRagdollState(bool state)
     {
-        foreach (Rigidbody rb in ragdollRigidbodies)
+        Vector3 displacement = transform.position - previousPosition;
+        foreach (Rigidbody rbs in ragdollRigidbodies)
         {
-            rb.isKinematic = !state;
-            rb.detectCollisions = state;
+            rbs.isKinematic = !state;
+            rbs.detectCollisions = state;
+            var bone = Animator.transform.Find(rb.name);
+            if (bone != null)
+            {
+                rbs.position = bone.position;
+                rbs.rotation = bone.rotation;
+            }
+            
+            rbs.velocity = displacement*2;
         }
+        Physics.SyncTransforms();
+        
+        rb.velocity = displacement*2;
     }
 }
