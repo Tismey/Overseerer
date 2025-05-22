@@ -13,22 +13,27 @@ public class PlayerMouvement : mouvementscript
     public bool ShootInput;
     public bool ShoveInput;
     public bool JumpInput;
+    public bool interactInput;
     private InputAction shootAction;
     private InputAction shoveAction;
     private InputAction jumpAction;
+    private InputAction interactAction;
     // Start is called before the first frame update
     void Awake()
     {
         shootAction = GetComponent<PlayerInput>().actions["Shoot"];
         shoveAction = GetComponent<PlayerInput>().actions["Shove"];
         jumpAction = GetComponent<PlayerInput>().actions["Jump"];
+        interactAction = GetComponent<PlayerInput>().actions["Interact"];
     }
 
     private void Update()
     {
         ShootInput = shootAction.ReadValue<float>() > 0.9f;
         ShoveInput = shoveAction.ReadValue<float>() > 0.1f;
-        if(!JumpInput)
+        interactInput = interactAction.ReadValue<float>() > 0.1f;
+
+        if (!JumpInput)
             JumpInput = jumpAction.ReadValue<float>() > 0.1f;
     }
 

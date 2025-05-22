@@ -10,6 +10,8 @@ public class PlayerInControlfps : AIState
     public float shoveCooldown = 1f;
     private float shoveTimer = 0f;
     private PlayerMouvement playerMouvement;
+    private InteractionManager interactionManager;
+    private Iteractebable interactebale;
 
     [Header("Recoil Settings")]
     [Tooltip("Angle (in degrees) the camera is kicked up on fire.")]
@@ -41,6 +43,7 @@ public class PlayerInControlfps : AIState
         cam = Camera.main;
         Cursor.lockState = CursorLockMode.Locked;
         playerMouvement = ai.GetComponent<PlayerMouvement>();
+        interactionManager = ai.GetComponent<InteractionManager>();
         recoilJoint = ai.eyePosition.parent.transform;
         baseRotation = recoilJoint.localRotation;
 
@@ -63,6 +66,16 @@ public class PlayerInControlfps : AIState
             ai.weapon.Shoot(ai.eyePosition.forward,ai.eyePosition.position);
             if(ai.weapon.CanShoot())
                 ApplyRecoil();
+        }
+
+        if (interactionManager.CanInteractWith(out interactebale))
+        {
+            if(playerMouvement.interactInput)
+            {
+                Debug.Log("Interat input");
+                interactebale.Interact(ai);
+                playerMouvement.interactInput = false;
+            }
         }
 
     }

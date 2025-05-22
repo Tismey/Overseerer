@@ -39,20 +39,15 @@ public abstract class WeaponAbstract : MonoBehaviour
 
     public void FixedUpdate()
     {
-
+        UpdatePickUp();
         if (!CanShoot())
         {
             Reload();
         }
-        if (pickedUp)
-        {
-             transform.rotation = owner.transform.rotation;
-             transform.position = owner.righthand.position;
-             var offset = owner.righthand.position - handle.position;
-             transform.position += offset;
 
-        }
-        else
+
+
+        if(!pickedUp)
         {
             if (bufferTimer < bufferPickUp)
             {
@@ -70,15 +65,8 @@ public abstract class WeaponAbstract : MonoBehaviour
                     {
                         if(Vector3.Distance(a.transform.position, transform.position) < 5)
                         {
-                            Debug.Log("Picking up weapon");
-                            pickedUp = true;
-                            owner = a;
-                            if (owner.weapon != null && owner.weapon != this)
-                            {
-                                owner.weapon.PutDown();
-                            }
-                            owner.weapon = this;
-                            break;
+                           WeaponPickUp(a);
+                           break;
                         }
                     }
                 }
@@ -131,6 +119,38 @@ public abstract class WeaponAbstract : MonoBehaviour
         owner = null;
         pickedUp = false;
         bufferTimer = 0f;
+    }
+
+    public void PickUp()
+    {
+        transform.rotation = owner.transform.rotation;
+        transform.position = owner.righthand.position;
+        var offset = owner.righthand.position - handle.position;
+        transform.position += offset;
+    }
+
+
+    public void UpdatePickUp()
+    {
+        if (pickedUp)
+        {
+            transform.rotation = owner.eyePosition.transform.rotation;
+            transform.position = owner.righthand.position;
+            var offset = owner.righthand.position - handle.position;
+            transform.position += offset;
+        }
+    }
+
+    public void WeaponPickUp(AIbase a)
+    {
+        Debug.Log("Picking up weapon");
+        pickedUp = true;
+        owner = a;
+        if (owner.weapon != null && owner.weapon != this)
+        {
+            owner.weapon.PutDown();
+        }
+        owner.weapon = this;
     }
 
 }

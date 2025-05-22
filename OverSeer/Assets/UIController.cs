@@ -8,11 +8,16 @@ public class UIController : MonoBehaviour
 {
 
     public TextMeshProUGUI text;
+    public TextMeshProUGUI timer;
+    public TextMeshProUGUI textInteract;
     public Slider slider;
     public Image sliderImage;
     public AIbase aiBase;
     public Healthcontroller healthController;
     public SetCrosshair setCrosshair;
+    public InteractionManager interactionManager;
+
+    private float time = 0f;    
 
     [Header("Colors")]
     [Tooltip("Couleur commune à tous les éléments UI (barre de vie, texte munitions, etc.)")]
@@ -22,13 +27,19 @@ public class UIController : MonoBehaviour
     {
         sliderImage.color = uiColor;
         text.color = uiColor;
+        timer.color = uiColor;
+        textInteract.color = uiColor;
         setCrosshair.SetCrosshairColor(uiColor);
+        interactionManager = GetComponent<InteractionManager>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(aiBase.weapon != null)
+        time += Time.deltaTime;
+        int sec = (int)time % 60;
+        int min = (int)time / 60;
+        if (aiBase.weapon != null)
         {
             text.text = aiBase.weapon.currentClip.ToString() + "/" + aiBase.weapon.currentAmmo.ToString();
         }
@@ -45,5 +56,24 @@ public class UIController : MonoBehaviour
         {
             slider.value = 0;
         }
+
+        if (interactionManager != null)
+        {
+            Debug.Log("InteractionManager not null");
+            if (interactionManager.CanInteractWith(out Iteractebable inter))
+            {
+                textInteract.text = inter.getInteractLabel();
+            }
+            else
+            {
+                textInteract.text = "";
+            }
+        }
+        else
+        {
+            textInteract.text = "";
+        }
+
+        timer.text = min.ToString("00") +":" + sec.ToString("00") ;
     }
 }

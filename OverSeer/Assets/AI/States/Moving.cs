@@ -68,7 +68,7 @@ public class Moving : AIState
 
         if (Vector3.Distance(aiPosition, cornerPosition) > 2f)
         {
-            Debug.Log("Moving....");
+           
             ai.SetMoveVector(nav.corners[currentCorner]);
             this.hasPath = NavMesh.CalculatePath(ai.transform.position, pos + (lead * Vector3.Distance(pos,ai.transform.position)*2), NavMesh.AllAreas, nav);
             currentCorner = 0;

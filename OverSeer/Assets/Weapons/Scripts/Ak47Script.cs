@@ -24,6 +24,7 @@ public class Ak47Script : WeaponAbstract
             if (hit.collider.gameObject.GetComponent<AIbase>() != null)
             {
                 hit.collider.gameObject.GetComponent<AIbase>().health.ApplyDamage(damage);
+                hit.collider.gameObject.GetComponent<AIbase>().rb.AddForce(transform.forward * (damage / 10), ForceMode.VelocityChange);
             }
         }
         var b  = Instantiate(bullet, pos + owner.transform.forward , muzzle.rotation);
