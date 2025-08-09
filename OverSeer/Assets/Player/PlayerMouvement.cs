@@ -14,10 +14,15 @@ public class PlayerMouvement : mouvementscript
     public bool ShoveInput;
     public bool JumpInput;
     public bool interactInput;
+    public int switchInput;
+    public bool dropInput;
     private InputAction shootAction;
     private InputAction shoveAction;
     private InputAction jumpAction;
     private InputAction interactAction;
+    private InputAction switchUp;
+    private InputAction switchDown;
+    private InputAction DropAction;
     // Start is called before the first frame update
     void Awake()
     {
@@ -25,6 +30,9 @@ public class PlayerMouvement : mouvementscript
         shoveAction = GetComponent<PlayerInput>().actions["Shove"];
         jumpAction = GetComponent<PlayerInput>().actions["Jump"];
         interactAction = GetComponent<PlayerInput>().actions["Interact"];
+        switchUp = GetComponent<PlayerInput>().actions["ChangeWeaponUP"];
+        switchDown = GetComponent<PlayerInput>().actions["ChangeWeaponDown"];
+        DropAction = GetComponent<PlayerInput>().actions["Drop"];
     }
 
     private void Update()
@@ -32,7 +40,19 @@ public class PlayerMouvement : mouvementscript
         ShootInput = shootAction.ReadValue<float>() > 0.9f;
         ShoveInput = shoveAction.ReadValue<float>() > 0.1f;
         interactInput = interactAction.ReadValue<float>() > 0.1f;
-
+        dropInput = DropAction.ReadValue<float>() > 0.9f;
+        if (switchDown.ReadValue<float>() > 0f)
+        {
+            switchInput = 1;
+        }
+        else if (switchUp.ReadValue<float>() > 0f)
+        {
+            switchInput = -1;
+        }
+        else
+        {
+            switchInput = 0;
+        }
         if (!JumpInput)
             JumpInput = jumpAction.ReadValue<float>() > 0.1f;
     }

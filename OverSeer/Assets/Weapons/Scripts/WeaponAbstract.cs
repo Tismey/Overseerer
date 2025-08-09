@@ -8,6 +8,7 @@ public abstract class WeaponAbstract : MonoBehaviour
     public Transform muzzle;
     public Transform handle;
     public AIbase owner;
+
     public int maxAmmo;
     public int currentAmmo;
     public int maxClip;
@@ -26,6 +27,8 @@ public abstract class WeaponAbstract : MonoBehaviour
     private float bufferTimer = 0f;
     private bool pickedUp = false;
 
+    private Rigidbody rb;
+    private BoxCollider bc;
 
     public void Start()
     {
@@ -35,6 +38,9 @@ public abstract class WeaponAbstract : MonoBehaviour
         }
         currentAmmo = maxAmmo - maxClip;
         currentClip = maxClip;
+
+        rb = GetComponent<Rigidbody>();
+        bc = GetComponent<BoxCollider>();
     }
 
     public void FixedUpdate()
@@ -49,28 +55,13 @@ public abstract class WeaponAbstract : MonoBehaviour
 
         if(!pickedUp)
         {
-            if (bufferTimer < bufferPickUp)
-            {
-                bufferTimer += Time.deltaTime;
-                return;
-            }
-            transform.rotation = Quaternion.identity;
-            transform.position += Vector3.zero;
-            foreach (AIbase a in AIbase.Population)
-            {
-                foreach(string t in teamInteract)
-                {
-                    
-                    if (a.teamName == t)
-                    {
-                        if(Vector3.Distance(a.transform.position, transform.position) < 5)
-                        {
-                           WeaponPickUp(a);
-                           break;
-                        }
-                    }
-                }
-            }
+            rb.isKinematic = false;
+            bc.enabled = true;
+        }
+        else
+        {
+            rb.isKinematic = true;
+            bc.enabled = false;
         }
 
         fireTimer += Time.deltaTime;
@@ -115,7 +106,7 @@ public abstract class WeaponAbstract : MonoBehaviour
 
     public void PutDown()
     {
-        owner.weapon = null;
+        owner.weapon[owner.WeaponSelect] = null;
         owner = null;
         pickedUp = false;
         bufferTimer = 0f;

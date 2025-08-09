@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7087689056916286814}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: muzzle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41,7 +41,10 @@ GameObject:
   m_Component:
   - component: {fileID: 7087689056977669230}
   - component: {fileID: 7087689056977669231}
-  m_Layer: 0
+  - component: {fileID: -1836557595540525535}
+  - component: {fileID: 1231282089037175635}
+  - component: {fileID: 5555293155252976415}
+  m_Layer: 11
   m_Name: AK47
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -97,6 +100,48 @@ MonoBehaviour:
   hitlayer:
     serializedVersion: 2
     m_Bits: 512
+--- !u!114 &-1836557595540525535
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7087689056977669224}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1c6a3be363aa3848ab6405fa2930f51, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactLabel: Pick up AK-47
+--- !u!65 &1231282089037175635
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7087689056977669224}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.37862015, y: 0.8303739, z: 2.8231523}
+  m_Center: {x: 0.021921158, y: 0.08481306, z: -0.23105848}
+--- !u!54 &5555293155252976415
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7087689056977669224}
+  serializedVersion: 2
+  m_Mass: 0.1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &7087689057072121188
 GameObject:
   m_ObjectHideFlags: 0
@@ -106,7 +151,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7087689057072121195}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: handle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -139,7 +184,7 @@ GameObject:
   - component: {fileID: 7216498931893989912}
   - component: {fileID: 5408237765996175617}
   - component: {fileID: 1266192834117374433}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Spot Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -426,6 +471,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: ak47model
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: b55683cd3a2c26a4e9896a2b7441eb80,
+        type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b55683cd3a2c26a4e9896a2b7441eb80, type: 3}

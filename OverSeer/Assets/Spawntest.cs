@@ -40,7 +40,7 @@ public class Spawntest : MonoBehaviour
             Debug.Log("No players");
             return;
         }
-        if (AIbase.Population.Count > 30)
+        if (AIbase.Population.Count > 1000)
         {
             return;
         }

@@ -25,7 +25,7 @@ public abstract class AIbase : MonoBehaviour
     public bool noGravity = false;
 
     public Transform righthand;
-    public WeaponAbstract[] weapon = new WeaponAbstract[9];
+    public WeaponAbstract[] weapon;
     public int WeaponSelect = 0;
     public LockRoot lockRoot;
 
@@ -47,6 +47,7 @@ public abstract class AIbase : MonoBehaviour
 
     public void Start()
     {
+        weapon = new WeaponAbstract[9];
         moveType = gameObject.GetComponent<mouvementscript>();
         health = gameObject.GetComponent<Healthcontroller>();
 
@@ -64,6 +65,12 @@ public abstract class AIbase : MonoBehaviour
             SetRagdollState(false);
         }
 
+        for(int i = 0; i < 9; i++)
+        {
+            weapon[i] = null;
+            Debug.Log("set " + i + "to null");
+        }
+
 
     }
 
@@ -73,6 +80,7 @@ public abstract class AIbase : MonoBehaviour
     void FixedUpdate()
     {   
         AIthink();
+        
     }
 
     protected void UpdateAnimator()

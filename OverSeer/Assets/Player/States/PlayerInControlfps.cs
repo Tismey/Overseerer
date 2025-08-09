@@ -68,6 +68,28 @@ public class PlayerInControlfps : AIState
                 ApplyRecoil();
         }
 
+        if (playerMouvement.dropInput && ai.weapon[ai.WeaponSelect] != null)
+        {
+            Debug.Log("drop The gun");
+            ai.weapon[ai.WeaponSelect].PutDown();
+        }
+
+        if(playerMouvement.switchInput != 0)
+        {
+            ai.WeaponSelect += playerMouvement.switchInput;
+            if(ai.WeaponSelect < 0)
+            {
+                ai.WeaponSelect = 8;
+            }
+            if(ai.WeaponSelect <= 9)
+            {
+                ai.WeaponSelect = 0;
+            }
+            Debug.Log("Weapon : " + ai.WeaponSelect + " selected");
+        }
+
+        
+
         if (interactionManager.CanInteractWith(out interactebale))
         {
             if(playerMouvement.interactInput)

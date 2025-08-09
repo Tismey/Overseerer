@@ -31,7 +31,7 @@ public class ChaseTest : AIState
            }
            else
            {
-                ai.AddState(new Attack(2f,1.5f));
+                ai.AddState(new Attack(3.5f,1f));
            }
 
 

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.1534791, g: 0.22493958, b: 0.5138159, a: 1}
+  m_IndirectSpecularColor: {r: 0.15515298, g: 0.22988963, b: 0.5358658, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2683,7 +2683,7 @@ MonoBehaviour:
   player: {fileID: 0}
   spawnEntitie: {fileID: 3702159874611141162, guid: b3d96df65c92fdf4ea0dcb7a06dd2681,
     type: 3}
-  numOfSpawn: 30
+  numOfSpawn: 100
   spawnRate: 1
   Wavenumber: 15
   WaveDelay: 20

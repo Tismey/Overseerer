@@ -22,14 +22,32 @@ public class CureCrafterManager : MonoBehaviour
 
     public CureNodeInteract[] cureCombination = new CureNodeInteract[MAXNODES];
 
-    private CureNodeInteract.NodeType[] secretCOmbination = new CureNodeInteract.NodeType[MAXNODES];
+    private CureNodeInteract.NodeType[] secretCOmbination;
 
-    private int[] occurences = new int[4];
+    private int[] occurences;
     // Start is called before the first frame update
+
+    public bool CreateCure()
+    {
+        foreach (CureNodeInteract cur in cureCombination)
+        {
+            if (cur.getCurtype() == CureNodeInteract.NodeType.NONE)
+            {
+                createCure = false;
+                return false;
+            }
+        }
+        createCure = true;
+        return true;
+    }
     void Start()
     {
+
+    
+        secretCOmbination = new CureNodeInteract.NodeType[MAXNODES];
+        occurences = new int[4];
         //generate the secret combination
-        for(int i = 0; i < MAXNODES; i++)
+        for (int i = 0; i < MAXNODES; i++)
         {
             secretCOmbination[i] = (CureNodeInteract.NodeType)Random.Range(1, 4);
             occurences[(int)secretCOmbination[i] - 1]++;
@@ -44,6 +62,11 @@ public class CureCrafterManager : MonoBehaviour
             var cr = new correlation[5];
             var tmp = new int[4];
             occurences.CopyTo(tmp, 0);
+            foreach(int i in tmp)
+            {
+                Debug.Log((CureNodeInteract.NodeType)(i+1) + " occurs " + tmp[i]);
+            }
+           
             for (int i = 0; i < MAXNODES; i++)
             {
                 if(cureCombination[i].getCurtype() == secretCOmbination[i])
@@ -51,7 +74,7 @@ public class CureCrafterManager : MonoBehaviour
                     cr[i] = correlation.INR;
                     tmp[(int)cureCombination[i].getCurtype() - 1]--;
                 }
-                else  if(tmp[(int)cureCombination[i].getCurtype() -1] > 0)
+                else if(tmp[(int)cureCombination[i].getCurtype() -1] > 0)
                 {
                     cr[i] = correlation.INW;
                     tmp[(int)cureCombination[i].getCurtype() - 1]--;
@@ -64,5 +87,6 @@ public class CureCrafterManager : MonoBehaviour
 
             correlations.Add(cr);
         }
+        createCure = false;
     }
 }

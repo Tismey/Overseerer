@@ -48,7 +48,7 @@ public class CureNodeInteract : Iteractebable
             //do something
         }
 
-        counter = counter++ % 4;
+        counter = ++counter % 4;
 
     }
 
