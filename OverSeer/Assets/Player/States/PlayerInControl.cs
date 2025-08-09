@@ -39,7 +39,7 @@ public class PlayerInControl : AIState
         }
         if (playerMouvement.ShootInput && ai.weapon != null)
         {
-            ai.weapon.Shoot(cam.transform.forward,ai.eyePosition.position); ;
+            ai.weapon[ai.WeaponSelect].Shoot(cam.transform.forward,ai.eyePosition.position); ;
         }
 
     }

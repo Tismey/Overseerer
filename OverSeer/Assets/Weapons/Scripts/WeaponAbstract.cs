@@ -146,11 +146,12 @@ public abstract class WeaponAbstract : MonoBehaviour
         Debug.Log("Picking up weapon");
         pickedUp = true;
         owner = a;
-        if (owner.weapon != null && owner.weapon != this)
+        if (owner.weapon[a.WeaponSelect] != null && owner.weapon[a.WeaponSelect] != this)
         {
-            owner.weapon.PutDown();
+            owner.weapon[a.WeaponSelect].PutDown();
         }
-        owner.weapon = this;
+        owner.weapon[a.WeaponSelect] = this;
+        Debug.Log("Did weapon pickup owner");
     }
 
 }

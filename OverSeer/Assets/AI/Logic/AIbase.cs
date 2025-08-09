@@ -25,13 +25,15 @@ public abstract class AIbase : MonoBehaviour
     public bool noGravity = false;
 
     public Transform righthand;
-    public WeaponAbstract weapon;
+    public WeaponAbstract[] weapon = new WeaponAbstract[9];
+    public int WeaponSelect = 0;
     public LockRoot lockRoot;
 
     public Healthcontroller health;
 
     private Rigidbody[] ragdollRigidbodies;
     public GameObject ragdollHolder;
+
 
     // Start is called before the first frame update
     void Awake()

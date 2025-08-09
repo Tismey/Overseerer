@@ -7,6 +7,10 @@ public class PlayerState : AIbase
 
     public float rotationSpeed;
     public string team;
+
+    //Logic for the game
+
+    public bool[] NodesInPossesion = new bool[4];
     public override void LookTowards(Vector3 v)
     {
         moveType.RotateActorTowards(v, rotationSpeed);

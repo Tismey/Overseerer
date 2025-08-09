@@ -39,9 +39,9 @@ public class UIController : MonoBehaviour
         time += Time.deltaTime;
         int sec = (int)time % 60;
         int min = (int)time / 60;
-        if (aiBase.weapon != null)
+        if (aiBase.weapon[aiBase.WeaponSelect] != null)
         {
-            text.text = aiBase.weapon.currentClip.ToString() + "/" + aiBase.weapon.currentAmmo.ToString();
+            text.text = aiBase.weapon[aiBase.WeaponSelect].currentClip.ToString() + "/" + aiBase.weapon[aiBase.WeaponSelect].currentAmmo.ToString();
         }
         else
         {

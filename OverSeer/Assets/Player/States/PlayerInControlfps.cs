@@ -61,10 +61,10 @@ public class PlayerInControlfps : AIState
             
             //this.Animator.SetTrigger("Shove");
         }
-        if (playerMouvement.ShootInput && ai.weapon != null)
+        if (playerMouvement.ShootInput && ai.weapon[ai.WeaponSelect] != null)
         {
-            ai.weapon.Shoot(ai.eyePosition.forward,ai.eyePosition.position);
-            if(ai.weapon.CanShoot())
+            ai.weapon[ai.WeaponSelect].Shoot(ai.eyePosition.forward,ai.eyePosition.position);
+            if(ai.weapon[ai.WeaponSelect].CanShoot())
                 ApplyRecoil();
         }
 
@@ -153,7 +153,9 @@ public class PlayerInControlfps : AIState
         Quaternion shakeRot = Quaternion.Euler(jitter.y, jitter.x, 0f);
 
         // 5) Always apply on top of the original baseRotation
-        recoilJoint.localRotation = baseRotation * recoilRot * shakeRot;
+
+        Quaternion quaternion = baseRotation * recoilRot * shakeRot;
+        recoilJoint.localRotation = quaternion;
     }
 
 
