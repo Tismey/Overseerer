@@ -9,9 +9,8 @@ Le projet met l’accent sur des mécaniques dynamiques de **spawn de zombies** 
 ## Fonctionnalités principales
 
 - **Spawn dynamique** : les zombies apparaissent de façon adaptative selon la progression du joueur.  
-- **IA poussée** : les zombies analysent la situation et réagissent de manière crédible (poursuite, contournement, regroupement).  
+- **IA poussée** : les zombies analysent la situation et réagissent de manière crédible (poursuite, contournement, regroupement, escalade des obstacle).  
 - **Gameplay inspiré de Left 4 Dead** : ambiance coopérative et survie contre des hordes de zombies.  
-- **Développement en Unity** : conçu avec le moteur Unity pour garantir extensibilité et évolutivité.  
 
 ---
 
