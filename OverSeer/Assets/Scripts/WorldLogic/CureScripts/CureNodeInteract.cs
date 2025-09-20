@@ -8,14 +8,23 @@ public class CureNodeInteract : Iteractebable
     {
         NONE = 0,
         RED = 1,
-        YELLOW = 2,
-        BLUE = 3,
-        GREEN = 4
+        BLUE = 2,
+        GREEN = 3
     }
+
+    public Material[] Material1  = new Material[3];
+
+    public Material defaultMat;
 
     private int counter = 0;
 
     private NodeType currentType = NodeType.NONE ;
+
+    public void Reset()
+    {
+        GetComponent<MeshRenderer>().material = defaultMat;
+        setInteract(true);
+    }
 
     public NodeType getCurtype()
     {
@@ -29,28 +38,30 @@ public class CureNodeInteract : Iteractebable
             if(counter + 1 == 1)
             {
                 currentType = NodeType.RED;
+                GetComponent<MeshRenderer>().material = Material1[0];
             }
             if (counter + 1 == 2)
             {
-                currentType = NodeType.YELLOW;
+                currentType = NodeType.BLUE;
+                GetComponent<MeshRenderer>().material = Material1[1];
             }
             if (counter + 1 == 3)
             {
-                currentType = NodeType.BLUE;
-            }
-            if (counter + 1 == 4)
-            {
                 currentType = NodeType.GREEN;
+                GetComponent<MeshRenderer>().material = Material1[2];
             }
+            
         }
         else
         {
             //do something
         }
 
-        counter = ++counter % 4;
+        counter = ++counter % 3;
 
-    }
+        
+
+}
 
     public override void InteractUpdateBehavior()
     {

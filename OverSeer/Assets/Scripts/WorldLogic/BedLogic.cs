@@ -2,18 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CureActivateInteract : Iteractebable
+public class BedLogic : Iteractebable
 {
 
-
-    public CureCrafterManager Ccm;
-
+    public WordLogic wordLogic;
     public override void Interact(AIbase ai)
     {
-        if (Ccm.CreateCure())
-        {
-            setInteract(false);
-        }
+        wordLogic.Reset();
+        setInteract(false);
     }
 
     public override void InteractUpdateBehavior()
@@ -25,6 +21,6 @@ public class CureActivateInteract : Iteractebable
     // Start is called before the first frame update
     void Start()
     {
-        setInteract(true);
+        setInteract(false);
     }
 }

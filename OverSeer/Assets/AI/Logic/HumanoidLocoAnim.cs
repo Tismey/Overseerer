@@ -18,7 +18,6 @@ public class HumanoidLocoAnim : AIbase
     {
         base.Start();
         this.team = teamName;
-        //this.AddState(new Idle());
     }
 
 

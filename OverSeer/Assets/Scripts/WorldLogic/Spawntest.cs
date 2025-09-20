@@ -6,7 +6,6 @@ using UnityEngine;
 public class Spawntest : MonoBehaviour
 {
 
-    public Transform player;
     public GameObject spawnEntitie;
     public int numOfSpawn;
     private int numOfSpawnStart;
@@ -19,13 +18,7 @@ public class Spawntest : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        numOfSpawnStart = numOfSpawn; 
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
+        numOfSpawnStart = numOfSpawn;
         var l = AIbase.Population;
         foreach (AIbase ai in l)
         {
@@ -35,12 +28,19 @@ public class Spawntest : MonoBehaviour
                 players.Add(ai);
             }
         }
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+
+       
         if(players.Count == 0)
         {
             Debug.Log("No players");
             return;
         }
-        if (AIbase.Population.Count > 1000)
+        if (AIbase.Population.Count > 45)
         {
             return;
         }

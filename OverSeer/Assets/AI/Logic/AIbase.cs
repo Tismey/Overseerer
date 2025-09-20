@@ -34,6 +34,9 @@ public abstract class AIbase : MonoBehaviour
     private Rigidbody[] ragdollRigidbodies;
     public GameObject ragdollHolder;
 
+    public float noise;
+    public float noiseResetAmount = 5;
+
 
     // Start is called before the first frame update
     void Awake()
@@ -74,13 +77,26 @@ public abstract class AIbase : MonoBehaviour
 
     }
 
+    public void SetNoise(float amount)
+    {
+        noise = amount;
+    }
+
+    public float GetNoise()
+    {
+        return noise;
+    }
+
 
 
     // Update is called once per frame
     void FixedUpdate()
     {   
         AIthink();
-        
+        noise -= Time.deltaTime * noiseResetAmount;
+        if (noise < 0) noise = 0;
+
+
     }
 
     protected void UpdateAnimator()
@@ -157,6 +173,11 @@ public abstract class AIbase : MonoBehaviour
         states.Remove(st);
     }
 
+    public void OnDestroy()
+    {
+        Population.Remove(this);
+    }
+
     public bool IsSeing(AIbase target)
     {
         if(Physics.Linecast(eyePosition.position, target.eyePosition.position, occlusionLayer)){
@@ -221,10 +242,13 @@ public abstract class AIbase : MonoBehaviour
                 rbs.rotation = bone.rotation;
             }
             
-            rbs.velocity = displacement*2;
+            rbs.velocity = displacement/Time.deltaTime;
         }
         Physics.SyncTransforms();
         
-        rb.velocity = displacement*2;
+        rb.velocity = displacement / Time.deltaTime;
     }
+
+
+    
 }

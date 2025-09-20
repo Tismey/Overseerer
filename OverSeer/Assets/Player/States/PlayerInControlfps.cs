@@ -7,7 +7,7 @@ public class PlayerInControlfps : AIState
     public int numberOfRays = 10; // Nombre de raycasts
     public float arcAngle = 90f;  // Angle de l'arc en degrés
     public float rayDistance = 5f; // Distance des raycasts
-    public float shoveCooldown = 1f;
+    public float shoveCooldown = 0.5f;
     private float shoveTimer = 0f;
     private PlayerMouvement playerMouvement;
     private InteractionManager interactionManager;
@@ -51,6 +51,7 @@ public class PlayerInControlfps : AIState
     }
     public override void act()
     {
+        float noiseMade = 0;
         //do nothing
         //this.Animator.SetBool("Idle",true);
         shoveTimer += Time.deltaTime;
@@ -64,8 +65,12 @@ public class PlayerInControlfps : AIState
         if (playerMouvement.ShootInput && ai.weapon[ai.WeaponSelect] != null)
         {
             ai.weapon[ai.WeaponSelect].Shoot(ai.eyePosition.forward,ai.eyePosition.position);
-            if(ai.weapon[ai.WeaponSelect].CanShoot())
+            if (ai.weapon[ai.WeaponSelect].CanShoot())
+            {
                 ApplyRecoil();
+                noiseMade += 100; //Change that to a parameter per weapon;
+            }
+                
         }
 
         if (playerMouvement.dropInput && ai.weapon[ai.WeaponSelect] != null)
@@ -99,6 +104,8 @@ public class PlayerInControlfps : AIState
                 playerMouvement.interactInput = false;
             }
         }
+        noiseMade += playerMouvement.GetCurrentSpeed();
+        ai.SetNoise(noiseMade);
 
     }
 

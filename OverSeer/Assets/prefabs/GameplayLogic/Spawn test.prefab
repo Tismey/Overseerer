@@ -44,10 +44,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe90cd8c3bd7bca468780ec01a772351, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 0}
   spawnEntitie: {fileID: 3702159874611141162, guid: b3d96df65c92fdf4ea0dcb7a06dd2681,
     type: 3}
-  numOfSpawn: 30
+  numOfSpawn: 15
   spawnRate: 0.2
-  Wavenumber: 15
+  Wavenumber: 1
   WaveDelay: 20

@@ -853,10 +853,10 @@ CapsuleCollider:
   m_Material: {fileID: 13400000, guid: 38cbb1073e1c22b41be21a2f7b3d6582, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
-  m_Radius: 0.22261238
-  m_Height: 3.6284916
+  m_Radius: 0.48082185
+  m_Height: 2.5606313
   m_Direction: 1
-  m_Center: {x: -0.057447433, y: -0.8423947, z: 0}
+  m_Center: {x: -0.057447433, y: -0.30846453, z: -0.011817694}
 --- !u!54 &3702159874611141163
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -906,6 +906,8 @@ MonoBehaviour:
   lockRoot: {fileID: 3702159874611141212}
   health: {fileID: 0}
   ragdollHolder: {fileID: 6946594701016005930}
+  noise: 0
+  noiseResetAmount: 5
   rotationSpeed: 10
   team: tg
   test: {fileID: 0}
@@ -943,7 +945,7 @@ MonoBehaviour:
     m_Bits: 256
   other:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 576
 --- !u!114 &3702159874611141212
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -971,7 +973,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8959cea2535f93646ab43cbfc36f26a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
+  maxHealth: 50
   initialHealth: 0
   aiBase: {fileID: 0}
 --- !u!1 &3702159874626015281

@@ -11,7 +11,8 @@ public abstract class mouvementscript : MonoBehaviour
     public float MAXSPEED = 30f;
     public float MAXACCEL = 3 ;
     public const float MAXAIR = 1f;
-    public float MAXHEIGTH = 2f;
+    public float MAXHEIGTH = 10f;
+    private float RAYOFFSET = 100f; //for consitency when hitting the ground
     public float jumpHeight;
     public float decay = 20f;
     public float sprintp = 1.20f;
@@ -59,17 +60,21 @@ public abstract class mouvementscript : MonoBehaviour
 
         //On differencie bien le comportement dans les air de celui sur le sol
             RaycastHit hit;
-            if (Physics.Raycast(transform.position, -Vector3.up, out hit, Mathf.Infinity, layermask))
+            if (Physics.Raycast(transform.position + new Vector3(0,RAYOFFSET,0), -Vector3.up, out hit, Mathf.Infinity, layermask))
             {
+                Debug.Log("hit point :" + hit.point.y);
                 if (Mathf.Abs(hit.point.y - transform.position.y) < MAXHEIGTH)
                 {
-                if (jump)
-                {
-                    rb.velocity += new Vector3(0, -rb.velocity.y + jumpHeight, 0);
-                    return;
-                }
+                    if (jump)
+                    {
+                        rb.velocity += new Vector3(0, -rb.velocity.y + jumpHeight, 0);
+                        return;
+                    }
+                    else {
+                        rb.velocity = new Vector3(rb.velocity.x, 0,rb.velocity.z);
+                    }
 
-                    transform.position = new Vector3(transform.position.x,hit.point.y + MAXHEIGTH,transform.position.z);
+                    transform.position = new Vector3(transform.position.x, hit.point.y + MAXHEIGTH - 0.01f, transform.position.z) ;
                     rb.velocity += new Vector3(-rb.velocity.x/decay, 0, -rb.velocity.z/decay);
                     float addspeed = Mathf.Clamp(MAXSPEED - currentspeed, 0, MAXACCEL * Time.fixedDeltaTime);
                     rb.velocity += (addspeed * wishdir * sprintm);
@@ -89,6 +94,11 @@ public abstract class mouvementscript : MonoBehaviour
                 float addspeed = Mathf.Clamp(MAXAIR - currentspeed, 0, MAXACCEL * Time.deltaTime);
                 rb.velocity += (addspeed * wishdir * sprintm) + new Vector3(0, -20.81f * Time.fixedDeltaTime, 0);
             }
+    }
+
+    public float GetCurrentSpeed()
+    {
+        return rb.velocity.magnitude;
     }
 
     public bool IsGrounded()

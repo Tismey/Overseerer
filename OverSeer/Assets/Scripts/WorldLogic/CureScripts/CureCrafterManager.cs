@@ -14,6 +14,10 @@ public class CureCrafterManager : MonoBehaviour
 
     }
 
+    public CureVisualCheck cvc;
+
+    public WordLogic wl;
+
     public List<correlation[]> correlations = new List<correlation[]>();
 
     private const int MAXNODES = 5;
@@ -23,6 +27,8 @@ public class CureCrafterManager : MonoBehaviour
     public CureNodeInteract[] cureCombination = new CureNodeInteract[MAXNODES];
 
     private CureNodeInteract.NodeType[] secretCOmbination;
+
+    public CureActivateInteract cureButton;
 
     private int[] occurences;
     // Start is called before the first frame update
@@ -38,6 +44,7 @@ public class CureCrafterManager : MonoBehaviour
             }
         }
         createCure = true;
+        
         return true;
     }
     void Start()
@@ -45,12 +52,22 @@ public class CureCrafterManager : MonoBehaviour
 
     
         secretCOmbination = new CureNodeInteract.NodeType[MAXNODES];
-        occurences = new int[4];
+        occurences = new int[3];
         //generate the secret combination
         for (int i = 0; i < MAXNODES; i++)
         {
-            secretCOmbination[i] = (CureNodeInteract.NodeType)Random.Range(1, 4);
+            secretCOmbination[i] = (CureNodeInteract.NodeType)Random.Range(1, 3);
+            Debug.Log(i + 1 + "in secret is " + secretCOmbination[i]);
             occurences[(int)secretCOmbination[i] - 1]++;
+        }
+    }
+
+    public void Reset()
+    {
+        foreach(CureNodeInteract cc in cureCombination)
+        {
+            cc.Reset();
+            cureButton.Reset();
         }
     }
 
@@ -60,13 +77,9 @@ public class CureCrafterManager : MonoBehaviour
         if (createCure)
         {
             var cr = new correlation[5];
-            var tmp = new int[4];
+            var tmp = new int[3];
             occurences.CopyTo(tmp, 0);
-            foreach(int i in tmp)
-            {
-                Debug.Log((CureNodeInteract.NodeType)(i+1) + " occurs " + tmp[i]);
-            }
-           
+           //This Nees to be fixed (double loop?)
             for (int i = 0; i < MAXNODES; i++)
             {
                 if(cureCombination[i].getCurtype() == secretCOmbination[i])
@@ -86,6 +99,10 @@ public class CureCrafterManager : MonoBehaviour
             }
 
             correlations.Add(cr);
+
+
+            cvc.UpdateVisual(cr);
+            wl.objectiveComplete = true;
         }
         createCure = false;
     }

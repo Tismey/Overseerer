@@ -7,6 +7,7 @@ public class PlayerState : AIbase
 
     public float rotationSpeed;
     public string team;
+   
 
     //Logic for the game
 
@@ -28,10 +29,9 @@ public class PlayerState : AIbase
         isPlayer = true;
     }
 
-
-
     public override void AIthink()
     {
+        
         this.PlayState();
         if (canMove)
         {

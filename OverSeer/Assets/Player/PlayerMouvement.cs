@@ -14,6 +14,7 @@ public class PlayerMouvement : mouvementscript
     public bool ShoveInput;
     public bool JumpInput;
     public bool interactInput;
+    private bool trackInteract = false;
     public int switchInput;
     public bool dropInput;
     private InputAction shootAction;
@@ -39,7 +40,19 @@ public class PlayerMouvement : mouvementscript
     {
         ShootInput = shootAction.ReadValue<float>() > 0.9f;
         ShoveInput = shoveAction.ReadValue<float>() > 0.1f;
-        interactInput = interactAction.ReadValue<float>() > 0.1f;
+        if (trackInteract)
+        {
+            if(interactAction.ReadValue<float>() == 0)
+            {
+                trackInteract = false;
+            }
+        }
+        else
+        {
+            interactInput = interactAction.ReadValue<float>() > 0.1f;
+            trackInteract = interactInput;
+        }
+        
         dropInput = DropAction.ReadValue<float>() > 0.9f;
         if (switchDown.ReadValue<float>() > 0f)
         {

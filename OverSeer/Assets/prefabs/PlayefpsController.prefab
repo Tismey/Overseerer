@@ -705,7 +705,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: -140.75848, y: 0, z: -148.45312, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -2585,6 +2585,8 @@ MonoBehaviour:
   ShoveInput: 0
   JumpInput: 0
   interactInput: 0
+  switchInput: 0
+  dropInput: 0
 --- !u!54 &7614694081872674336
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2628,12 +2630,15 @@ MonoBehaviour:
   canMove: 0
   noGravity: 0
   righthand: {fileID: 2485175773584593623}
-  weapon: {fileID: 0}
+  weapon:
+  - {fileID: 0}
+  WeaponSelect: 0
   lockRoot: {fileID: 7614694081872674347}
   health: {fileID: 0}
   ragdollHolder: {fileID: 0}
   rotationSpeed: 10
   team: 
+  NodesInPossesion: 00000000
 --- !u!114 &7614694081872674347
 MonoBehaviour:
   m_ObjectHideFlags: 0
