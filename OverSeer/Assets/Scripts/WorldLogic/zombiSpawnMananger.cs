@@ -4,7 +4,10 @@ using UnityEngine;
 
 public class zombiSpawnMananger : MonoBehaviour
 {
+    public bool spawnZombies;
 
+    private bool spawnHordes = true;
+    
     public GameObject zombiePrefab;
 
     public GameObject hordePrefab;
@@ -56,7 +59,8 @@ public class zombiSpawnMananger : MonoBehaviour
 
         timer += Time.deltaTime;
         hordeTimer += Time.deltaTime;
-        
+
+        if (!spawnZombies) return;
         if (startSpawning && timer > 0.1f)
         {
             timer = 0;

@@ -12,7 +12,7 @@ public abstract class mouvementscript : MonoBehaviour
     public float MAXACCEL = 3 ;
     public const float MAXAIR = 1f;
     public float MAXHEIGTH = 10f;
-    private float RAYOFFSET = 100f; //for consitency when hitting the ground
+    private float RAYOFFSET = 1f; //for consitency when hitting the ground
     public float jumpHeight;
     public float decay = 20f;
     public float sprintp = 1.20f;
@@ -62,11 +62,12 @@ public abstract class mouvementscript : MonoBehaviour
             RaycastHit hit;
             if (Physics.Raycast(transform.position + new Vector3(0,RAYOFFSET,0), -Vector3.up, out hit, Mathf.Infinity, layermask))
             {
-                Debug.Log("hit point :" + hit.point.y);
-                if (Mathf.Abs(hit.point.y - transform.position.y) < MAXHEIGTH)
+               
+                if (Mathf.Abs(hit.point.y - transform.position.y) < MAXHEIGTH + 0.5f)
                 {
                     if (jump)
                     {
+                        
                         rb.velocity += new Vector3(0, -rb.velocity.y + jumpHeight, 0);
                         return;
                     }
@@ -106,7 +107,7 @@ public abstract class mouvementscript : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(transform.position, -Vector3.up, out hit, Mathf.Infinity, layermask))
         {
-            if (Mathf.Abs(hit.point.y - transform.position.y) < MAXHEIGTH)
+            if (Mathf.Abs(hit.point.y - transform.position.y) < MAXHEIGTH + 0.5f)
             {
                 return false;
             }
