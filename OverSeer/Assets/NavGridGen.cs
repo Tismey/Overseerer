@@ -16,24 +16,33 @@ public struct NodeGrid
 public class NavGridGen : MonoBehaviour
 {
     [Header("Grid Bounds")]
-    public Transform pointA;
+    public Transform pointpA;
     public Transform pointB;
 
+    public static Transform pointA;
+
     [Header("Grid Size")]
-    public int gridX = 20;
-    public int gridY = 20;
+    public int setGridX = 20;
+    public int setGridY = 20;
+
+
+    public static int gridX;
+    public static int gridY;
 
     [Header("Layers to Raycast")]
     public LayerMask geometryMask;
 
-    public NodeGrid[,] grid;
+    public static NodeGrid[,] grid;
 
-    private float cellSizeX;
-    private float cellSizeZ;
+    private static float cellSizeX;
+    private static float cellSizeZ;
 
     // ----------------------------------------------------------------------
     void Start()
     {
+        pointA = pointpA;
+        gridX = setGridX;
+        gridY = setGridY;
         GenerateGrid();
     }
 
@@ -157,7 +166,7 @@ public class NavGridGen : MonoBehaviour
                     node.isCorner[h] = false;
 
                     for (int d = 0; d < 8; d++)
-                        node.connections[h][d] = true; // nouvelle règle
+                        node.connections[h][d] = false; // nouvelle règle
                 }
 
                 // ---- Loop sur chaque height ----
@@ -172,9 +181,7 @@ public class NavGridGen : MonoBehaviour
                     {
                         for (int d = 0; d < 8; d++)
                         {
-                            node.connections[hA][d] = false;
-                            node.cover[hA][d] = false;
-                            
+                            node.cover[hA][d] = false;  
                         }
                         node.isInsideGeometry[hA] = true;
                         continue;
@@ -188,14 +195,12 @@ public class NavGridGen : MonoBehaviour
 
                         if (nx < 0 || nx >= gridX || ny < 0 || ny >= gridY)
                         {
-                            node.connections[hA][d] = false;
                             continue;
                         }
 
                         NodeGrid neighbor = grid[nx, ny];
                         if (neighbor.heights == null || neighbor.heights.Length == 0)
                         {
-                            node.connections[hA][d] = false;
                             continue;
                         }
 
@@ -205,7 +210,6 @@ public class NavGridGen : MonoBehaviour
                         int hB = FindBestHeightIndex(neighbor, heightA, neighborBase);
                         if (hB < 0)
                         {
-                            node.connections[hA][d] = false;
                             continue;
                         }
 
@@ -218,8 +222,7 @@ public class NavGridGen : MonoBehaviour
                                                         geometryMask);
 
                         if (blocked)
-                        {
-                            node.connections[hA][d] = false;
+                        { 
                             continue;
                         }
 
@@ -230,9 +233,10 @@ public class NavGridGen : MonoBehaviour
 
                         if (slope > maxSlope)
                         {
-                            node.connections[hA][d] = false;
                             continue;
                         }
+
+                        node.connections[hA][d] = true;
 
                     }
 
@@ -393,7 +397,7 @@ public class NavGridGen : MonoBehaviour
 
 
     // ----------------------------------------------------------------------
-    public Vector3 GridToWorld(int i, int j)
+    public static Vector3 GridToWorld(int i, int j)
     {
         Vector3 min = pointA.position;
 
@@ -402,6 +406,48 @@ public class NavGridGen : MonoBehaviour
 
         return new Vector3(px, 0f, pz);
     }
+
+    // Convertit un point monde en indices grille
+    public static bool WorldToGrid(Vector3 pos, out int i, out int j, out int h)
+    {
+        h = -1;
+
+        // Convertit XZ → indices grille
+        Vector3 min = pointA.position;
+
+        i = Mathf.FloorToInt((pos.x - min.x) / cellSizeX);
+        j = Mathf.FloorToInt((pos.z - min.z) / cellSizeZ);
+
+        // Hors de la grille
+        if (i < 0 || i >= gridX || j < 0 || j >= gridY)
+            return false;
+
+        // Le nœud correspondant
+        NodeGrid node = grid[i, j];
+
+        // Si aucune hauteur disponible → échec
+        if (node.heights == null || node.heights.Length == 0)
+            return false;
+
+        // Étape : sélectionner la hauteur la plus proche du point monde
+        float targetY = pos.y;
+        float bestDist = Mathf.Infinity;
+
+        for (int k = 0; k < node.heights.Length; k++)
+        {
+            float dh = Mathf.Abs(node.heights[k] - targetY);
+
+            if (dh < bestDist)
+            {
+                bestDist = dh;
+                h = k;
+            }
+        }
+
+        return true;
+    }
+
+
 
     // ----------------------------------------------------------------------
     void OnDrawGizmos()
