@@ -9,6 +9,7 @@ public class Climb : AIState
     private Vector3 pos;
     private Vector3 offset = new Vector3(0, 1f, 0);
     private Vector3 surfaceDir;
+    private string animationName = "climbLow";
 
 
     public Climb(Vector3 pos, Vector3 surfaceDir)
@@ -19,7 +20,7 @@ public class Climb : AIState
     public override void Setup()
     {
 
-        this.Animator.SetTrigger("Climb");
+        this.Animator.Play(animationName);
         this.ai.lockRoot.Lock();
         this.ai.noGravity = true;
         ai.transform.position += ((pos - offset) - ai.transform.position )* 2 * Time.deltaTime;
@@ -54,9 +55,10 @@ public class Climb : AIState
         {
             this.ai.lockRoot.MoveWithAnim();
         }
-        if (Animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.9f && !Animator.IsInTransition(0) && Animator.GetCurrentAnimatorStateInfo(0).IsName("climbHigh"))
+        if (Animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.9f && !Animator.IsInTransition(0) && Animator.GetCurrentAnimatorStateInfo(0).IsName(animationName))
         {
             hasEnded = true;
+            Debug.Log("climbed Exited");
         }
 
 
@@ -64,14 +66,12 @@ public class Climb : AIState
 
     public override void Interupt()
     {
-        this.Animator.ResetTrigger("Climb");
         hasEnded = true;
     }
 
     public override void Finish()
     {
         ai.transform.position += ai.transform.forward * 0.5f;
-        this.Animator.ResetTrigger("Climb");
         this.ai.lockRoot.Lock();
         this.ai.lockRoot.PreCalc();
         hasEnded = true;

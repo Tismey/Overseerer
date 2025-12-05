@@ -1,153 +1,192 @@
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
 
+public class MovingAndClimb : AIState
+{
+    private Vector3 targetPos;
+    private Transform targetTransform;
 
-    public class MovingAndClimb : AIState
+    private bool followTransform = false;
+
+    private List<Vector3> path = null;
+    private int currentIndex = 0;
+
+    private readonly float climbCheckDistance = 2f;
+    private readonly float climbHeightMax = 2.5f;
+
+    // Constructors
+    public MovingAndClimb(Vector3 pos)
     {
-        public Vector3 pos;
-        public Transform tran;
-        private Vector3 lead;
-        public List<Vector3> path;
-        public NavMeshPath nav = new NavMeshPath();
-        private bool hasPath;
-        private int currentCorner = 0;
-        private bool isVec = false;
-        private bool isTrans = false;
-        private Vector3 maxClimb = new Vector3(0,10,0);
-        // Start is called before the first frame update
-        public MovingAndClimb(Vector3 pos)
-        {
-            this.pos = pos;
-            isVec = true;
-        }
-        public MovingAndClimb(Transform t)
-        {
-            tran = t;
-            this.pos = t.position;
-            isTrans = true;
-        }
-        public override void Setup()
-        {
+        this.targetPos = pos;
+        followTransform = false;
+    }
 
-            this.hasPath = NavMesh.CalculatePath(ai.transform.position, pos, NavMesh.AllAreas, nav);
-        }
-        public override void act()
+    public MovingAndClimb(Transform target)
+    {
+        this.targetTransform = target;
+        this.targetPos = target.position;
+        followTransform = true;
+    }
+
+    // -------------------------------------------------------------
+    // Setup : compute initial path
+    // -------------------------------------------------------------
+    public override void Setup()
+    {
+        ComputePath();
+        ((AiMouvement)ai.moveType).avoidObstacle = false;
+        this.Animator.Play("JogMoveTree");
+        this.ai.lockRoot.Lock();
+    }
+
+    private void ComputePath()
+    {
+        Vector3 start = ai.transform.position;
+
+        if (followTransform)
+            targetPos = targetTransform.position;
+
+        path = AStarPathFinder.FindPath(start, targetPos);
+
+        currentIndex = 0;
+
+        if (path == null || path.Count == 0)
         {
-            if (isTrans)
+            Debug.LogWarning("A* returned no path.");
+            hasEnded = true;
+        }
+    }
+
+    // -------------------------------------------------------------
+    // ACT : follow path + climbing
+    // -------------------------------------------------------------
+    public override void act()
+    {
+        ai.canMove = true;
+
+        // If target moved, recompute path
+        if (followTransform)
+        {
+            Vector3 newPos = targetTransform.position;
+            if ((newPos - targetPos).sqrMagnitude > 0.5f)
             {
-                lead = tran.position - pos;
-                pos = tran.position;
-                ai.LookTowards(pos);
+                targetPos = newPos;
+                ComputePath();
             }
+        }
 
-            ai.canMove = true;
-        //this.hasPath = NavMesh.CalculatePath(ai.transform.position, pos, NavMesh.AllAreas, nav);
-            RaycastHit hit;
-            if (Physics.Raycast(ai.transform.position, ai.transform.forward, out hit, 2f))
-            {
-                if (hit.collider.gameObject.layer != 6)
-                {
-
-                    return;
-                }
-                if (!Physics.Raycast(ai.transform.position + maxClimb, ai.transform.forward, out hit, 2f))
-                {
-                    
-                     for (float i = 0; i < maxClimb.y; i += 0.1f)
-                     {
-                         if (Physics.Raycast(ai.transform.position + new Vector3(0, maxClimb.y - i, 0), ai.transform.forward, out hit, 2f))
-                         {
-                              if (hit.collider.gameObject.layer != 6)
-                              {
-
-                                  continue;
-                              }
-                              hit.normal = new Vector3(hit.normal.x, 0, hit.normal.z);
-                              ai.AddState(new Climb(hit.point,hit.normal));
-                              return;
-                         }
-                     }
-                    
-                   
-                }
-            }
-        if (!hasPath || nav.status == NavMeshPathStatus.PathPartial)
-            {
-                Debug.Log("No path found");
-                ai.SetMoveVector(pos);
-                this.hasPath = NavMesh.CalculatePath(ai.transform.position, pos + (lead * Vector3.Distance(pos, ai.transform.position) * 2), NavMesh.AllAreas, nav);
+        if (path == null || currentIndex >= path.Count)
+        {
+            hasEnded = true;
             return;
-            }
-
-            if (Vector3.Distance(pos, ai.transform.position) <= 3.1f)
-            {
-                
-                this.hasEnded = true;
-                return;
-            }
-            if (currentCorner >= nav.corners.Length)
-            {
-                currentCorner = 0;
-                return;
-            }
-            Vector3 aiPosition = ai.transform.position;
-            Vector3 cornerPosition = nav.corners[currentCorner];
-
-            // Ignore the y-axis by setting both y values to 0.
-            aiPosition.y = 0;
-            cornerPosition.y = 0;
-
-            if (Vector3.Distance(aiPosition, cornerPosition) > 2f)
-            {
-               
-                ai.SetMoveVector(nav.corners[currentCorner]);
-                this.hasPath = NavMesh.CalculatePath(ai.transform.position, pos + (lead * Vector3.Distance(pos, ai.transform.position) * 2), NavMesh.AllAreas, nav);
-                currentCorner = 0;
-
-
-            }
-            else
-            {
-              
-                if (isTrans)
-                {
-
-                }
-                currentCorner++;
-            }
-           
-
-
-
         }
 
-        public void UpdatePosition(Vector3 pos)
+        // -----------------------------------------
+        // 1) Check if we reached the final destination
+        // -----------------------------------------
+        Vector3 currentGoal = path[currentIndex];
+        currentGoal.y = ai.transform.position.y; // ignore y for ground movement
+
+        float distFlat = Vector3.Distance(
+            new Vector3(ai.transform.position.x, 0, ai.transform.position.z),
+            new Vector3(currentGoal.x, 0, currentGoal.z)
+        );
+
+        if (currentIndex == path.Count - 1 && distFlat < 0.6f)
         {
-            this.pos = pos;
+            hasEnded = true;
+            return;
         }
 
-        public override void Interupt()
-        {
-            //Debug.Log(this.ai);
-            ai.canMove = false;
-            //this.Animator.SetBool("Idle", false);
-        }
+        // -----------------------------------------
+        // 2) Climb detection
+        // -----------------------------------------
+        if (CheckForClimb())
+            return; // climbing took over → stop moving here
 
-        public override void Finish()
+        // -----------------------------------------
+        // 3) Move along the path
+        // -----------------------------------------
+        if (distFlat > 0.4f)
         {
-            ai.canMove = false;
-            this.hasEnded = true;
-            //this.Animator.SetBool("Idle", false);
+            ai.SetMoveVector(path[currentIndex]);
+            ai.LookTowards(path[currentIndex]);
         }
-
-        public override void Continue()
+        else
         {
-            ai.canMove = true;
-            this.hasPath = NavMesh.CalculatePath(ai.transform.position, pos, NavMesh.AllAreas, nav);
-            //this.Animator.SetBool("Idle", true);
+            currentIndex++;
         }
     }
 
 
+    // -------------------------------------------------------------
+    // CLIMB CHECK
+    // -------------------------------------------------------------
+    private bool CheckForClimb()
+    {
+        RaycastHit hit;
+
+        Vector3 pos = ai.transform.position;
+
+        // forward check
+        if (Physics.Raycast(pos, ai.transform.forward, out hit, climbCheckDistance))
+        {
+            if (hit.collider.gameObject.layer != 6)
+                return false;
+
+            // check if above is free (climb possible)
+            if (!Physics.Raycast(pos + Vector3.up * climbHeightMax, ai.transform.forward, climbCheckDistance))
+            {
+                // find exact step height
+                for (float h = climbHeightMax; h >= 0; h -= 0.1f)
+                {
+                    if (Physics.Raycast(pos + new Vector3(0, h, 0), ai.transform.forward, out hit, climbCheckDistance))
+                    {
+                        if (hit.collider.gameObject.layer != 6)
+                            continue;
+
+                        Vector3 normal = hit.normal;
+                        normal.y = 0;
+
+                        ai.AddState(new Climb(hit.point, normal));
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    // -------------------------------------------------------------
+    // Update external target position
+    // -------------------------------------------------------------
+    public void UpdatePosition(Vector3 newPos)
+    {
+        targetPos = newPos;
+        followTransform = false;
+        ComputePath();
+    }
+
+    // -------------------------------------------------------------
+    // State machine callbacks
+    // -------------------------------------------------------------
+    public override void Interupt()
+    {
+        ai.canMove = false;
+        ((AiMouvement)ai.moveType).avoidObstacle = true;
+    }
+
+    public override void Finish()
+    {
+        ai.canMove = false;
+        hasEnded = true;
+        ((AiMouvement)ai.moveType).avoidObstacle = true;
+    }
+
+    public override void Continue()
+    {
+        Setup();
+        ((AiMouvement)ai.moveType).avoidObstacle = false;
+    }
+}

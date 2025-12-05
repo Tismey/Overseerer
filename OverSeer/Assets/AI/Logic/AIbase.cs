@@ -8,7 +8,7 @@ public abstract class AIbase : MonoBehaviour
 {   
     protected Vector3 m_Position;
     private bool b_think = false;
-    private List<AIState> states = new List<AIState>();
+    public List<AIState> states = new List<AIState>();
     public Transform eyePosition;
     private Vector3 previousPosition;
     public bool isPlayer = false;
@@ -123,7 +123,7 @@ public abstract class AIbase : MonoBehaviour
     public void PlayState()
     {
         //init state if not done yet
-        if(states.Count < 0)return;
+        if(states.Count - 1 < 0)return;
         if (!states[states.Count - 1].init())
         {
             

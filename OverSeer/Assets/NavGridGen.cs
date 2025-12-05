@@ -37,6 +37,18 @@ public class NavGridGen : MonoBehaviour
     private static float cellSizeX;
     private static float cellSizeZ;
 
+    public static Vector2Int[] offsets = new Vector2Int[]
+    {
+            new Vector2Int(-1, -1),
+            new Vector2Int( 0, -1),
+            new Vector2Int( 1, -1),
+            new Vector2Int(-1,  0),
+            new Vector2Int( 1,  0),
+            new Vector2Int(-1,  1),
+            new Vector2Int( 0,  1),
+            new Vector2Int( 1,  1)
+    };
+
     // ----------------------------------------------------------------------
     void Start()
     {
@@ -115,17 +127,7 @@ public class NavGridGen : MonoBehaviour
     {
         if (grid == null) return;
 
-        Vector2Int[] offsets = new Vector2Int[]
-        {
-            new Vector2Int(-1, -1),
-            new Vector2Int( 0, -1),
-            new Vector2Int( 1, -1),
-            new Vector2Int(-1,  0),
-            new Vector2Int( 1,  0),
-            new Vector2Int(-1,  1),
-            new Vector2Int( 0,  1),
-            new Vector2Int( 1,  1)
-        };
+ 
 
         Vector3[] directions3D = new Vector3[]
         {

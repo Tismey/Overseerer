@@ -8,6 +8,7 @@ public class AiMouvement : mouvementscript
 
     public LayerMask obstacleLayer;
     public LayerMask other;
+    public bool avoidObstacle = true;
     public override void MoveActor(Vector3 pos)
     {
         if(Vector3.Distance(transform.position, pos) < 0.1f)
@@ -37,7 +38,8 @@ public class AiMouvement : mouvementscript
             x = -1;
         }
         var t = obstacleAvoidance();
-        x += t.x;
+        if(avoidObstacle)
+            x += t.x;
 
 
         x = Mathf.Clamp(x, -1, 1);
