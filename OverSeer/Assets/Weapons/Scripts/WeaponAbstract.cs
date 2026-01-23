@@ -112,7 +112,7 @@ public abstract class WeaponAbstract : MonoBehaviour
         bufferTimer = 0f;
     }
 
-    public void PickUp()
+    private void PickUp()
     {
         transform.rotation = owner.transform.rotation;
         transform.position = owner.righthand.position;

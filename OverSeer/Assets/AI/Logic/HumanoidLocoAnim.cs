@@ -9,6 +9,8 @@ public class HumanoidLocoAnim : AIbase
     public float rotationSpeed;
     public string team;
     public Transform test;
+
+    public Squad squad;
     public override void LookTowards(Vector3 v)
     {
         moveType.RotateActorTowards(v,rotationSpeed);

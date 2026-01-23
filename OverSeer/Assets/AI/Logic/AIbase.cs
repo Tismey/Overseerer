@@ -38,6 +38,12 @@ public abstract class AIbase : MonoBehaviour
     public float noiseResetAmount = 5;
 
 
+    private int activeMoveStates = 0;
+
+    private Squad sq;
+
+
+
     // Start is called before the first frame update
     void Awake()
     {
@@ -160,6 +166,9 @@ public abstract class AIbase : MonoBehaviour
             states[states.Count - 1].SetInterupted(true);
 
         }
+        else
+        {
+        }
         
         states.Add(st);
         st.StartState(this);
@@ -228,6 +237,12 @@ public abstract class AIbase : MonoBehaviour
         return eyePosition.position;
     }
 
+   public int GetStateDepth()
+    {
+        return states.Count;
+    }
+
+
     public void SetRagdollState(bool state)
     {
         Vector3 displacement = transform.position - previousPosition;
@@ -250,5 +265,45 @@ public abstract class AIbase : MonoBehaviour
     }
 
 
-    
+    public bool IsLookingAt(AIbase target, float maxAngle = 35f, float maxDistance = 25f)
+    {
+        if (target == null) return false;
+
+        Vector3 dir = target.GetEyePosition() - GetEyePosition();
+        float dist = dir.magnitude;
+
+        if (dist > maxDistance)
+            return false;
+
+        dir.Normalize();
+
+        float angle = Vector3.Angle(eyePosition.forward, dir);
+        return angle <= maxAngle;
+    }
+
+    public bool IsInCover(Vector3 dangerPos)
+    {
+        int i, j, h;
+        if (!NavGridGen.WorldToGrid(transform.position, out i, out j, out h))
+            return false;
+
+        NodeGrid node = NavGridGen.grid[i, j];
+
+        Vector3 dir = dangerPos - transform.position;
+        dir.y = 0f;
+
+        if (dir.sqrMagnitude < 0.0001f)
+            return false;
+
+        int dangerDir = AStarTest.GetClosestDirectionIndex(dir);
+        if (dangerDir < 0)
+            return false;
+
+        return node.cover[h][dangerDir];
+    }
+
+
+
+
+
 }

@@ -121,5 +121,22 @@ public class LockRoot : MonoBehaviour
         shoulderBone.localRotation =
             Quaternion.AngleAxis(shoulderAngle, rotationAxis);
     }
+
+    public void shoulderLook(Vector3 target)
+    {
+        Vector3 toTarget = target - transform.position;
+
+        // We only need vertical angle
+        float verticalAngle = Mathf.Atan2(
+            toTarget.y,
+            new Vector2(toTarget.x, toTarget.z).magnitude
+        ) * Mathf.Rad2Deg;
+
+        // Clamp for realism if needed (optional)
+        verticalAngle = Mathf.Clamp(verticalAngle, -60f, 60f);
+
+        // Apply shoulder angle
+        SetShoulderAngle(verticalAngle);
+    }
 }
 

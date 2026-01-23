@@ -449,6 +449,40 @@ public class NavGridGen : MonoBehaviour
         return true;
     }
 
+    public static int GetClosestDirectionIndex(Vector3 dir)
+    {
+        dir.y = 0f;
+        if (dir.sqrMagnitude < 0.0001f)
+            return -1;
+
+        dir.Normalize();
+
+        float bestDot = float.MinValue;
+        int bestIndex = -1;
+
+        for (int i = 0; i < 8; i++)
+        {
+            Vector2 offset = NavGridGen.offsets[i];
+            Vector3 offDir = new Vector3(offset.x, 0f, offset.y).normalized;
+
+            float dot = Vector3.Dot(dir, offDir);
+            if (dot > bestDot)
+            {
+                bestDot = dot;
+                bestIndex = i;
+            }
+        }
+
+        return bestIndex;
+    }
+
+    public static bool IsValid(int i , int j)
+    {
+        if (i < 0 || j < 0) return false;
+        if (i >= gridX || j >= gridY) return false;
+        return true;
+    }
+
 
 
     // ----------------------------------------------------------------------

@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class MovingAndClimb : AIState
+public class TacticalMove : AIState
 {
-    private Vector3 targetPos;
-    private Transform targetTransform;
+    private Vector3 pos;
+    private Vector3 danger;
 
-    private bool followTransform = false;
+    private bool sprint = false;
 
     private List<Vector3> path = null;
     private int currentIndex = 0;
@@ -15,17 +15,13 @@ public class MovingAndClimb : AIState
     private readonly float climbHeightMax = 2.5f;
 
     // Constructors
-    public MovingAndClimb(Vector3 pos)
-    {
-        this.targetPos = pos;
-        followTransform = false;
-    }
+   
 
-    public MovingAndClimb(Transform target)
+    public TacticalMove(Vector3 pos, Vector3 danger,bool sprint)
     {
-        this.targetTransform = target;
-        this.targetPos = target.position;
-        followTransform = true;
+        this.pos = pos;
+        this.danger = danger;
+        this.sprint = sprint;
     }
 
     // -------------------------------------------------------------
@@ -35,7 +31,10 @@ public class MovingAndClimb : AIState
     {
         ComputePath();
         ((AiMouvement)ai.moveType).avoidObstacle = false;
-        this.Animator.Play("JogMoveTree");
+        if(sprint) this.Animator.Play("Sprint");
+        else this.Animator.Play("JogMoveTree");
+
+
         this.ai.lockRoot.Lock();
 
     }
@@ -44,10 +43,8 @@ public class MovingAndClimb : AIState
     {
         Vector3 start = ai.transform.position;
 
-        if (followTransform)
-            targetPos = targetTransform.position;
 
-        path = AStarPathFinder.FindPath(start, targetPos);
+        path = AStarPathFinder.FindPath(start, pos);
 
         currentIndex = 0;
 
@@ -65,16 +62,7 @@ public class MovingAndClimb : AIState
     {
         ai.canMove = true;
 
-        // If target moved, recompute path
-        if (followTransform)
-        {
-            Vector3 newPos = targetTransform.position;
-            if ((newPos - targetPos).sqrMagnitude > 0.5f)
-            {
-                targetPos = newPos;
-                ComputePath();
-            }
-        }
+        // If target moved, recompute pat
 
         if (path == null || currentIndex >= path.Count)
         {
@@ -111,12 +99,32 @@ public class MovingAndClimb : AIState
         if (distFlat > 0.4f)
         {
             ai.SetMoveVector(path[currentIndex]);
-            ai.LookTowards(path[currentIndex]);
+            if(!sprint) ai.LookTowards(danger);
+            else ai.LookTowards(path[currentIndex]);
         }
         else
         {
             currentIndex++;
         }
+
+        //check For Player player detection
+
+        if (sprint) return;
+        var enemies = ai.GetEnemies();
+        if(enemies.Count > 0 && ai.weapon[ai.WeaponSelect] != null)
+        {
+            //routine de combat
+            danger = enemies[0].GetEyePosition();
+            ai.LookTowards(danger);
+            ai.lockRoot.shoulderLook(danger);
+            ai.weapon[ai.WeaponSelect].Shoot(ai.eyePosition.forward, ai.GetEyePosition());
+            if (!ai.weapon[ai.WeaponSelect].CanShoot())
+            {
+                sprint = true;
+                Setup();
+            }
+        }
+
     }
 
 
@@ -162,12 +170,6 @@ public class MovingAndClimb : AIState
     // -------------------------------------------------------------
     // Update external target position
     // -------------------------------------------------------------
-    public void UpdatePosition(Vector3 newPos)
-    {
-        targetPos = newPos;
-        followTransform = false;
-        ComputePath();
-    }
 
     // -------------------------------------------------------------
     // State machine callbacks
