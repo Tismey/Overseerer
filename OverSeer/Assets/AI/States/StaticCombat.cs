@@ -27,15 +27,15 @@ public class StaticCombat : AIState
     public override void Setup()
     {
         ai.canMove = false;
-        ai.lockRoot.Lock();
+        ai.lockRoot.MoveWithAnim();
 
         inCover = ai.IsInCover(danger);
         crouched = inCover;
 
         if (crouched)
-            Animator.Play("CrouchIdle");
+            Animator.Play("IdleCrouch");
         else
-            Animator.Play("JogIdle");
+            Animator.Play("JogMoveTree"); ;
 
         crouchCooldown = Random.Range(1.5f, 3.5f);
     }
@@ -49,9 +49,9 @@ public class StaticCombat : AIState
         crouched = inCover;
 
         if (crouched)
-            Animator.Play("CrouchIdle");
+            Animator.Play("IdleCrouch");
         else
-            Animator.Play("JogIdle");
+            Animator.Play("JogMoveTree");
 
         crouchCooldown = Random.Range(1.5f, 3.5f);
     }
@@ -61,34 +61,30 @@ public class StaticCombat : AIState
     // -------------------------------------------------
     public override void act()
     {
-        List<AIbase> enemies = ai.GetEnemies();
-        bool enemyVisible = enemies.Count > 0;
+        AIbase enemies = ai.GetEnemies();
+        
+        bool enemyVisible = enemies != null;
 
-        AIbase enemy = enemyVisible ? enemies[0] : null;
+        AIbase enemy = enemyVisible ? enemies : null;
         bool enemyLookingAtUs = enemyVisible && enemy.IsLookingAt(ai);
 
         // -------------------------------------------------
         // 1) SI EN COUVERT
         // -------------------------------------------------
-        if (inCover)
+        if (!ai.IsInCover(danger))
         {
-            if (!crouched)
-            {
-                crouched = true;
-                Animator.Play("CrouchIdle");
-            }
+           
 
             if (enemyVisible)
                 Fire(enemy);
-
-            if (enemyLookingAtUs)
+            if (enemyLookingAtUs && enemyVisible)
             {
                 Vector3 newCover = FindBetterCoverLocal(
                     ai.transform.position,
                     danger
                 );
-
-                ai.AddState(new TacticalMove(newCover, danger, false));
+                Debug.Log("try to get new cover");
+                ai.AddState(new TacticalMove(newCover, danger, false,true));
                 hasEnded = true;
                 return;
             }
@@ -99,7 +95,7 @@ public class StaticCombat : AIState
         // -------------------------------------------------
         // 2) PAS EN COUVERT (debout)
         // -------------------------------------------------
-        if (!inCover)
+        else
         {
             if (crouched)
             {
@@ -116,7 +112,6 @@ public class StaticCombat : AIState
 
             if (enemyLookingAtUs)
             {
-                crouched = true;
                 crouchTimer = 0f;
                 Animator.Play("IdleCrouch");
                 return;
@@ -134,7 +129,7 @@ public class StaticCombat : AIState
                 danger
             );
 
-            ai.AddState(new TacticalMove(peekPos, danger, false));
+            ai.AddState(new TacticalMove(peekPos, danger, false,true));
             hasEnded = true;
         }
     }
@@ -144,20 +139,21 @@ public class StaticCombat : AIState
     // -------------------------------------------------
     private void Fire(AIbase enemy)
     {
-        if (ai.weapon[ai.WeaponSelect] == null) return;
-        if (!ai.weapon[ai.WeaponSelect].CanShoot()) return;
 
         Vector3 target = enemy.GetEyePosition();
 
         ai.LookTowards(target);
         ai.lockRoot.shoulderLook(target);
+        danger = enemy.transform.position;
+        if (ai.weapon[ai.WeaponSelect] == null) return;
+        if (!ai.weapon[ai.WeaponSelect].CanShoot()) return;
+
+
 
         ai.weapon[ai.WeaponSelect].Shoot(
-            ai.eyePosition.forward,
-            target
+            (danger - ai.eyePosition.position).normalized,
+                        ai.GetEyePosition()
         );
-
-        danger = enemy.transform.position - ai.transform.position;
     }
 
     // -------------------------------------------------
@@ -177,56 +173,116 @@ public class StaticCombat : AIState
 
     Vector3 FindClosestPeek(Vector3 origin, Vector3 danger, float radius = 7f)
     {
-        return Vector3.zero;
-    }
-
-    Vector3 FindBetterCoverLocal(Vector3 origin, Vector3 danger, float radius = 7f)
-    {
-        Vector3 bestCover = origin;
+        Vector3 bestPeek = origin;
+        float bestScore = float.MinValue;
 
         int ci, cj, ch;
         if (!NavGridGen.WorldToGrid(origin, out ci, out cj, out ch))
-            return bestCover;
+            return bestPeek;
 
         Vector3 dangerDir = danger - origin;
         dangerDir.y = 0f;
+        dangerDir.Normalize();
 
-        int dangerIndex = AStarTest.GetClosestDirectionIndex(dangerDir);
-        if (dangerIndex < 0)
-            return bestCover;
-
-        float bestScore = float.MinValue;
         int range = (int)radius;
 
         for (int i = ci - range; i <= ci + range; i++)
         {
             for (int j = cj - range; j <= cj + range; j++)
             {
-                if (!NavGridGen.IsValid(i, j))
+                if (!NavGridGen.IsValid(i, j, 0))
                     continue;
 
                 NodeGrid node = NavGridGen.grid[i, j];
-                if (!node.isInsideGeometry[ch] || !node.cover[ch][dangerIndex])
-                    continue;
 
-                Vector3 pos = NavGridGen.GridToWorld(i, j);
-
-                float dist = Vector3.Distance(origin, pos);
-                if (dist > radius)
-                    continue;
-
-                // scoring simple mais efficace
-                float score = -dist;
-
-                if (score > bestScore)
+                for (int h = 0; h < node.heights.Length; h++)
                 {
-                    bestScore = score;
-                    bestCover = pos;
+                    if (!node.isInsideGeometry[h])
+                        continue;
+
+                    Vector3 worldPos = NavGridGen.GridToWorld(i, j);
+
+                    float dist = Vector3.Distance(origin, worldPos);
+                    if (dist > radius)
+                        continue;
+
+                    // Check des 8 coins possibles
+                    for (int c = 0; c < 8; c++)
+                    {
+                        if (!node.isCorner[c])
+                            continue;
+
+                        Vector2 off = NavGridGen.offsets[c];
+                        Vector3 cornerDir = new Vector3(off.x, 0f, off.y).normalized;
+
+                        float dot = Vector3.Dot(cornerDir, dangerDir);
+                        if (dot < 0.3f)
+                            continue;
+
+                        float score = dot * 2f - dist * 0.5f;
+
+                        if (score > bestScore)
+                        {
+                            bestScore = score;
+                            bestPeek = worldPos;
+                        }
+                    }
                 }
             }
         }
 
-        return bestCover;
+        return bestPeek;
     }
+
+
+
+    Vector3 FindBetterCoverLocal(Vector3 origin, Vector3 danger, float radius = 10f)
+    {
+        Vector3 bestCover = origin;
+        List<Vector3> l = new List<Vector3>();
+
+        int ci, cj, ch;
+        if (!NavGridGen.WorldToGrid(origin, out ci, out cj, out ch))
+            return bestCover;
+        Debug.Log("worldtogrid succes");
+        Vector3 dangerDir = danger - origin;
+        dangerDir.y = 0f;
+
+        int dangerIndex = AStarTest.GetClosestDirectionIndex(dangerDir);
+        if (dangerIndex < 0)
+            return bestCover;
+        Debug.Log("danger succes");
+        int range = (int)radius;
+
+        for (int i = ci - range; i <= ci + range; i++)
+        {
+            for (int j = cj - range; j <= cj + range; j++)
+            {
+                if (!NavGridGen.IsValid(i, j, 0))
+                {
+                    continue;
+                }
+
+                NodeGrid node = NavGridGen.grid[i, j];
+
+                for (int h = 0; h < node.heights.Length; h++)
+                {
+                    if (node.isInsideGeometry[h])
+                        continue;
+
+                    bestCover = NavGridGen.GridToWorld(i, j);
+                    if (!node.cover[h][dangerIndex])
+                        continue;
+
+                    Vector3 pos = NavGridGen.GridToWorld(i, j);
+
+                    l.Add(pos);
+                }
+            }
+        }
+        if (l.Count == 0) return bestCover;
+        return l[Random.Range(0,l.Count)];
+    }
+
 
 }

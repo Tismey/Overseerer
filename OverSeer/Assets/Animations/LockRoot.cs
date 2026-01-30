@@ -37,6 +37,8 @@ public class LockRoot : MonoBehaviour
 
     private float shoulderAngle = 0f;         // Current angle
 
+    private Animator anim;
+
 
     // Start is called before the first frame update
     void Start()
@@ -45,6 +47,7 @@ public class LockRoot : MonoBehaviour
         l_moffset = l_metaRig.position;
         var o = l_model.position - l_controller.position;
         l_metaRig.position = new Vector3(l_metaRig.position.x - o.x, l_metaRig.position.y - o.y - l_ground, l_metaRig.position.z - o.z);
+        anim = l_metaRig.GetComponent<Animator>();
     }
 
 

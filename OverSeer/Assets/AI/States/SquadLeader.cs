@@ -1,94 +1,88 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class Squad : MonoBehaviour
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public enum ORDERTYPE
 {
-    public List<AIbase> soldiers = new List<AIbase>();
-    public AIbase leader;
+    MOVEANDHOLD,
+    DEFEND,
+    MOVEANDTRAP,
+    SEEKANDDESTROY
 
-    public Vector3 destination;
-    public Vector3 coverFrom;
+}
 
-    public List<Vector3> path;
-    public int currentPathIndex = 0;
-
-    private SquadState currentState;
-
-    // Tous les states injectés par le squad
-    public List<AIState> squadInjectedStates = new List<AIState>();
-
-    public int alertLevel = 0;
+public class SquadLeader : AIState
+{
+    // Start is called before the first frame update
+    private float staggerTime = 0f;
+    private ORDERTYPE orderType;
+    private Vector3 pos;
+    private Vector3 danger;
+    private List<AIbase> squad;
 
 
-    public void AddSoldiers(List<AIbase> s)
+    private List<Vector3> path;
+   
+
+    public SquadLeader(Vector3 pos,ORDERTYPE o, Vector3 danger,List<AIbase> soldiers)
     {
-        soldiers = s;
-        leader = soldiers[0];
+        orderType = o;
+        this.pos = pos;
+        this.danger = danger;
+        squad = soldiers;
+
     }
 
-    void FixedUpdate()
+    public override void Setup()
     {
-        // Nettoyage des morts
-        soldiers.RemoveAll(s => s == null);
 
-        // Relead si besoin
-        if (leader == null && soldiers.Count > 0)
+     
+
+
+        if (orderType == ORDERTYPE.MOVEANDHOLD)
         {
-            leader = soldiers[0];
-            ReassignFormation();
-        }
-        coverFrom = leader.transform.position + leader.transform.forward*100;
-            currentState?.Update();
-    }
-
-    public void SetState(SquadState newState)
-    {
-        currentState?.Exit();
-        currentState = newState;
-        currentState?.Enter();
-    }
-
-    // -------- State ownership --------
-
-    public void PushSquadState(AIbase ai, AIState state)
-    {
-        if (ai == null || state == null)
-            return;
-
-        ai.AddState(state);
-        squadInjectedStates.Add(state);
-    }
-
-    public void FinishSquadStates()
-    {
-        foreach (var s in squadInjectedStates)
-        {
-            if (s != null && !s.Ended())
-                s.Finish();
-        }
-        squadInjectedStates.Clear();
-    }
-
-    // -------- Formation --------
-
-    public void ReassignFormation()
-    {
-        if (leader == null)
-            return;
-
-        FinishSquadStates();
-
-        // Le leader reprend le mouvement courant
-        if (path != null && currentPathIndex < path.Count)
-        {
-            PushSquadState(leader, new MovingAndClimb(path[path.Count - 1]));
+            ai.AddState(new TacticalMove(pos, danger, false,false));
+            for(int i = 1; i < squad.Count; i++)
+            {
+                squad[i].AddState(new Follow(squad,this));
+            }
         }
 
-        // Les autres suivent
-        for (int i = 1; i < soldiers.Count; i++)
-        {
+    }
 
+    public override void act()
+    {
+
+        if(orderType == ORDERTYPE.MOVEANDHOLD)
+        {
+            moveandhold();
         }
+     
+
+    }
+
+    public override void Interupt()
+    {
+      
+    }
+
+    public override void Finish()
+    {
+      
+    }
+
+    public override void Continue()
+    {
+
+    }
+
+    private void moveandhold()
+    {
+
     }
 
     public List<Vector3> FindCoverPoints(
@@ -106,10 +100,8 @@ public class Squad : MonoBehaviour
         if (dirIndex < 0)
             return results;
 
-        float cellSizeX = Mathf.Abs(
-            NavGridGen.GridToWorld(1, 0).x - NavGridGen.GridToWorld(0, 0).x
-        );
-        int cellRadius = Mathf.CeilToInt(radius / cellSizeX);
+ 
+        int cellRadius = (int)radius;
 
         if (!NavGridGen.WorldToGrid(origin, out int ci, out int cj, out _))
             return results;
@@ -137,8 +129,6 @@ public class Squad : MonoBehaviour
                     Vector3 pos = basePos;
                     pos.y = node.heights[h];
 
-                    if (Vector3.Distance(origin, pos) > radius)
-                        continue;
 
                     // ✔ vrai couvert
                     if (node.cover[h][dirIndex])
@@ -218,6 +208,5 @@ public class Squad : MonoBehaviour
 
         return results;
     }
-
-
 }
+

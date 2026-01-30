@@ -30,7 +30,6 @@ public class HumanoidLocoAnim : AIbase
         if (canMove)
         {
             moveType.MoveActor(m_Position);
-            UpdateAnimator();
         }
         else
         {
@@ -51,8 +50,9 @@ public class HumanoidLocoAnim : AIbase
 
 
         }
-        
+
         //this.moveType.RotateActorTowards(test.position, 10f);
+        UpdateAnimator();
 
     }
 

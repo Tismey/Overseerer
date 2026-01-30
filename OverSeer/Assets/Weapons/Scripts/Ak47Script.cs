@@ -23,12 +23,17 @@ public class Ak47Script : WeaponAbstract
         {
             if (hit.collider.gameObject.GetComponent<AIbase>() != null)
             {
-                hit.collider.gameObject.GetComponent<AIbase>().health.ApplyDamage(damage);
-                hit.collider.gameObject.GetComponent<AIbase>().rb.AddForce(transform.forward * (damage / 10), ForceMode.VelocityChange);
+                if(owner != hit.collider.gameObject.GetComponent<AIbase>())
+                {
+                    hit.collider.gameObject.GetComponent<AIbase>().health.ApplyDamage(damage);
+                    hit.collider.gameObject.GetComponent<AIbase>().rb.AddForce(transform.forward * (damage / 10), ForceMode.VelocityChange);
+                }
+               
             }
         }
         var b  = Instantiate(bullet, pos + owner.transform.forward , muzzle.rotation);
         b.GetComponent<Rigidbody>().AddForce(dir * 10000f);
+
     }
 
     public override void ReloadBehavior()

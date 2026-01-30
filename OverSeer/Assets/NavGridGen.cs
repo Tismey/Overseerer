@@ -37,6 +37,8 @@ public class NavGridGen : MonoBehaviour
     private static float cellSizeX;
     private static float cellSizeZ;
 
+    public static bool ready = false;
+
     public static Vector2Int[] offsets = new Vector2Int[]
     {
             new Vector2Int(-1, -1),
@@ -56,6 +58,7 @@ public class NavGridGen : MonoBehaviour
         gridX = setGridX;
         gridY = setGridY;
         GenerateGrid();
+        ready = true;
     }
 
     // ----------------------------------------------------------------------
@@ -476,10 +479,11 @@ public class NavGridGen : MonoBehaviour
         return bestIndex;
     }
 
-    public static bool IsValid(int i , int j)
+    public static bool IsValid(int i , int j,int ch)
     {
         if (i < 0 || j < 0) return false;
         if (i >= gridX || j >= gridY) return false;
+        if (ch < 0 || ch >= grid[i, j].heights.Length) return false;
         return true;
     }
 

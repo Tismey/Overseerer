@@ -891,7 +891,9 @@ MonoBehaviour:
   moveType: {fileID: 3702159874611141203}
   Animator: {fileID: 7572679509312693178}
   teamName: 
-  maxViewDistance: 30
+  enemies: []
+  target: {fileID: 0}
+  maxViewDistance: 300
   maxViewAngle: 120
   occlusionLayer:
     serializedVersion: 2
@@ -908,9 +910,13 @@ MonoBehaviour:
   ragdollHolder: {fileID: 6946594701016005930}
   noise: 0
   noiseResetAmount: 5
+  isleader: 0
+  alert: 0
+  isdead: 0
   rotationSpeed: 10
   team: tg
   test: {fileID: 0}
+  squad: {fileID: 0}
 --- !u!114 &3702159874611141203
 MonoBehaviour:
   m_ObjectHideFlags: 0

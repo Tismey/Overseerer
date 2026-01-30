@@ -1,12 +1,20 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+
+public enum ACTIONTYPE
+{
+    MOVEFAST,
+    CAUTIOUS,
+}
 public class TacticalMove : AIState
 {
     private Vector3 pos;
     private Vector3 danger;
 
-    private bool sprint = false;
+    private bool sprint;
+
+    private bool forceMove = false;
 
     private List<Vector3> path = null;
     private int currentIndex = 0;
@@ -14,14 +22,17 @@ public class TacticalMove : AIState
     private readonly float climbCheckDistance = 2f;
     private readonly float climbHeightMax = 2.5f;
 
+    private Vector3 cover;
+
     // Constructors
    
 
-    public TacticalMove(Vector3 pos, Vector3 danger,bool sprint)
+    public TacticalMove(Vector3 pos, Vector3 danger,bool ac, bool forceMove)
     {
         this.pos = pos;
         this.danger = danger;
-        this.sprint = sprint;
+        this.sprint = ac;
+        this.forceMove = forceMove;
     }
 
     // -------------------------------------------------------------
@@ -31,10 +42,10 @@ public class TacticalMove : AIState
     {
         ComputePath();
         ((AiMouvement)ai.moveType).avoidObstacle = false;
-        if(sprint) this.Animator.Play("Sprint");
-        else this.Animator.Play("JogMoveTree");
-
-
+        if (!sprint)
+            this.Animator.Play("JogMoveTree");
+        else
+            this.Animator.Play("Sprint");
         this.ai.lockRoot.Lock();
 
     }
@@ -43,6 +54,7 @@ public class TacticalMove : AIState
     {
         Vector3 start = ai.transform.position;
 
+        
 
         path = AStarPathFinder.FindPath(start, pos);
 
@@ -62,7 +74,7 @@ public class TacticalMove : AIState
     {
         ai.canMove = true;
 
-        // If target moved, recompute pat
+
 
         if (path == null || currentIndex >= path.Count)
         {
@@ -76,12 +88,7 @@ public class TacticalMove : AIState
         Vector3 currentGoal = path[currentIndex];
         currentGoal.y = ai.transform.position.y; // ignore y for ground movement
 
-        float distFlat = Vector3.Distance(
-            new Vector3(ai.transform.position.x, 0, ai.transform.position.z),
-            new Vector3(currentGoal.x, 0, currentGoal.z)
-        );
-
-        if (currentIndex == path.Count - 1 && distFlat < 0.6f)
+        if (currentIndex == path.Count - 1 && ai.HasPassedPointXZ(path[currentIndex], 0.7f))
         {
             hasEnded = true;
             return;
@@ -90,41 +97,56 @@ public class TacticalMove : AIState
         // -----------------------------------------
         // 2) Climb detection
         // -----------------------------------------
-        if (CheckForClimb())
-            return; // climbing took over → stop moving here
+        /*if (CheckForClimb())
+            return; // climbing took over → stop moving here*/
 
         // -----------------------------------------
         // 3) Move along the path
         // -----------------------------------------
-        if (distFlat > 0.4f)
+        if (ai.GetEnemies() != null)
         {
+            if (!forceMove)
+            {
+                ai.AddState(new StaticCombat(ai.transform.position, ai.GetEnemies().transform.position));
+                return;
+            }
+                
+            if(!sprint)
+            {
+                danger = ai.GetEnemies().transform.position;
+                ai.LookTowards(danger);
+                ai.lockRoot.shoulderLook(danger);
+                if (ai.weapon[ai.WeaponSelect] != null)
+
+                    ai.weapon[ai.WeaponSelect].Shoot(
+                        (danger - ai.eyePosition.position).normalized,
+                        ai.GetEyePosition()
+                    );
+
+                if (ai.weapon[ai.WeaponSelect] != null && !ai.weapon[ai.WeaponSelect].CanShoot())
+                {
+                    Debug.Log("heloo");
+                    sprint = true;
+                    Setup();
+                }
+            }
+        }
+
+        if (!ai.HasPassedPointXZ(path[currentIndex],0.7f) )
+        {
+            if (sprint || !ai.alert)
+                ai.LookTowards(path[currentIndex]);
+            else
+                ai.LookTowards(danger);
+
             ai.SetMoveVector(path[currentIndex]);
-            if(!sprint) ai.LookTowards(danger);
-            else ai.LookTowards(path[currentIndex]);
         }
         else
         {
             currentIndex++;
         }
-
-        //check For Player player detection
-
-        if (sprint) return;
-        var enemies = ai.GetEnemies();
-        if(enemies.Count > 0 && ai.weapon[ai.WeaponSelect] != null)
-        {
-            //routine de combat
-            danger = enemies[0].GetEyePosition();
-            ai.LookTowards(danger);
-            ai.lockRoot.shoulderLook(danger);
-            ai.weapon[ai.WeaponSelect].Shoot(ai.eyePosition.forward, ai.GetEyePosition());
-            if (!ai.weapon[ai.WeaponSelect].CanShoot())
-            {
-                sprint = true;
-                Setup();
-            }
-        }
-
+        
+       
     }
 
 
@@ -170,6 +192,11 @@ public class TacticalMove : AIState
     // -------------------------------------------------------------
     // Update external target position
     // -------------------------------------------------------------
+    public void UpdatePosition(Vector3 newPos)
+    {
+        pos = newPos;
+        ComputePath();
+    }
 
     // -------------------------------------------------------------
     // State machine callbacks
@@ -177,20 +204,23 @@ public class TacticalMove : AIState
     public override void Interupt()
     {
         ai.canMove = false;
-        ((AiMouvement)ai.moveType).avoidObstacle = true;
+        
     }
 
     public override void Finish()
     {
         ai.canMove = false;
         hasEnded = true;
-        ((AiMouvement)ai.moveType).avoidObstacle = true;
+   
 
     }
 
     public override void Continue()
     {
         Setup();
-        ((AiMouvement)ai.moveType).avoidObstacle = false;
+
     }
+
+
+  
 }

@@ -9,6 +9,7 @@ public class SquadMove : SquadState
     private float cornerHoldActionTime = 2f;
     private bool cornerActionTrigger = false;
 
+    private bool init = false;
     public SquadMove(Squad squad) : base(squad) { }
 
     public override void Enter()
@@ -16,14 +17,16 @@ public class SquadMove : SquadState
         if (squad == null || squad.leader == null)
             return;
 
+        if (!NavGridGen.ready) return;
         Vector3 dir = squad.coverFrom - squad.leader.transform.position;
         int coverDir = NavGridGen.GetClosestDirectionIndex(dir);
 
         squad.path = AStarPathFinder.FindPathWithCover(
-            squad.leader.transform.position,
-            squad.destination,
-            coverDir
-        );
+        squad.leader.transform.position,
+        squad.destination,
+        coverDir
+    );
+
 
         squad.currentPathIndex = 0;
 
@@ -34,10 +37,12 @@ public class SquadMove : SquadState
         }
 
         AssignFileIndienne();
+        init = true;
     }
 
     public override void Update()
     {
+        if (!init) Enter();
         if (squad == null || squad.leader == null)
             return;
 
@@ -67,18 +72,7 @@ public class SquadMove : SquadState
         }
 
         // ---- Leader finished movement ----
-        if (squad.leader.GetStateDepth() < leaderStateDepth)
-        {
-            squad.currentPathIndex++;
-
-            if (squad.currentPathIndex >= squad.path.Count)
-            {
-                squad.SetState(new SquadIdle(squad));
-                return;
-            }
-
-            MoveLeaderToNext();
-        }
+       
     }
 
     public override void Exit()
@@ -96,17 +90,13 @@ public class SquadMove : SquadState
 
         squad.PushSquadState(
             squad.leader,
-            new MovingAndClimb(squad.path[0])
-        );
+            new MovingAndClimb(squad.path[squad.path.Count - 1])
+        ) ;
 
         leaderStateDepth = squad.leader.GetStateDepth();
 
         for (int i = 1; i < squad.soldiers.Count; i++)
         {
-            squad.PushSquadState(
-                squad.soldiers[i],
-                new Follow(squad)
-            );
         }
     }
 
@@ -114,7 +104,7 @@ public class SquadMove : SquadState
     {
         squad.PushSquadState(
             squad.leader,
-            new MovingAndClimb(squad.path[squad.currentPathIndex])
+            new MovingAndClimb(squad.path[squad.path.Count - 1])
         );
 
         leaderStateDepth = squad.leader.GetStateDepth();
@@ -142,19 +132,20 @@ public class SquadMove : SquadState
         if (cornerTimer < cornerHoldActionTime) return;
         if (!cornerActionTrigger)
         {
-            squad.PushSquadState(squad.leader, new TacticalMove(squad.path[squad.currentPathIndex], squad.coverFrom, true));
-            var cover = squad.FindCoverPoints(squad.leader.transform.position, squad.coverFrom, 10, squad.soldiers.Count - 1);
+            squad.PushSquadState(squad.leader, new TacticalMove(squad.path[squad.path.Count - 1], squad.coverFrom, true,false)) ;
+            var cover = squad.FindCoverPoints(squad.leader.transform.position, squad.coverFrom, 30, squad.soldiers.Count);
+            Debug.Log("covers = " + cover.Count + ", soldier = " + squad.soldiers.Count);
             for (int i = 1; i < squad.soldiers.Count; i++)
             {
                 squad.PushSquadState(
                     squad.soldiers[i],
-                    new TacticalMove(cover[i], squad.coverFrom, false)
-                ) ;
+                    new TacticalMove(cover[i], squad.coverFrom, false,false)
+                );
             }
             cornerActionTrigger = true;
 
         }
-        
+
     }
 
     void ExitCornerHold()
@@ -168,16 +159,10 @@ public class SquadMove : SquadState
 
     void RebuildFormation()
     {
-        // Leader : ne rien faire, il est piloté par SquadMove
-        for (int i = 1; i < squad.soldiers.Count; i++)
-        {
-            AIbase s = squad.soldiers[i];
-            if (s == null) continue;
-
-            s.AddState(new Follow(squad));
-        }
+        squad.ReassignFormation();
     }
 
+   
 }
 
 

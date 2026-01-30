@@ -39,12 +39,53 @@ public abstract class mouvementscript : MonoBehaviour
             var r = useRotation ? transform.right : Vector3.right;
             wishdir = f * zmov + r * xmov;
             wishdir.Normalize();
-            if (noclip)
+
+         // =========================
+         // WALL SLIDING (CORE FIX)
+         // =========================
+         RaycastHit wallHit;
+         if (Physics.Raycast(
+             transform.position + Vector3.down * RAYOFFSET,
+             wishdir,
+             out wallHit,
+             0.9f,
+             layermask
+         ) || Physics.Raycast(
+             transform.position + Vector3.down * RAYOFFSET + Vector3.right,
+             wishdir,
+             out wallHit,
+             0.9f,
+             layermask)
+
+         || Physics.Raycast(
+             transform.position + Vector3.down * RAYOFFSET - Vector3.right,
+             wishdir,
+             out wallHit,
+             0.9f,
+             layermask))
+         {
+             // Si on pousse vers le mur
+             if (Vector3.Dot(wishdir, wallHit.normal) < 0f)
+             {
+                 wishdir = Vector3.ProjectOnPlane(wishdir, wallHit.normal);
+
+                 if (wishdir.sqrMagnitude > 0.001f)
+                     wishdir.Normalize();
+                 else
+                     return; // plus rien de valide à faire
+             }
+         }
+
+
+
+        if (noclip)
             {
 
                 transform.position += wishdir * MAXSPEED * Time.deltaTime;
                 return;
             }
+
+
             float currentspeed = Vector3.Dot(rb.velocity, wishdir); 
             if(run && zmov > 0.1f)
             {

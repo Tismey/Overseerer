@@ -48,25 +48,9 @@ public class Attack : AIState
 
     private AIbase GetClosestEnemy()
     {
-        AIbase closest = null;
-        float distance = float.MaxValue;
-        foreach (AIbase a in ai.GetEnemies())
-        {
-            if (ai.IsSeing(a))
-            {
-                float d = Vector3.Distance(a.transform.position, ai.transform.position);
-                if(d > MaxRange*5)
-                {
-                    continue;
-                }
-                if (d < distance)
-                {
-                    distance = d;
-                    closest = a;
-                }
-            }
-        }
-        return closest;
+       
+         
+        return ai.GetEnemies();
     }   
 
     private void AttackEnemy()

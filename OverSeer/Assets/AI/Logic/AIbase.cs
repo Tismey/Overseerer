@@ -17,10 +17,13 @@ public abstract class AIbase : MonoBehaviour
     public Animator Animator;
     public string teamName;
     public static List<AIbase> Population = new List<AIbase>();
-    public float maxViewDistance;
+    public List<AIbase> enemies = new List<AIbase>();
+    public AIbase target;
+    public float maxViewDistance = 30f;
     public float maxViewAngle;
     public LayerMask occlusionLayer;
     public Rigidbody rb;
+
     public bool canMove = false;
     public bool noGravity = false;
 
@@ -38,10 +41,10 @@ public abstract class AIbase : MonoBehaviour
     public float noiseResetAmount = 5;
 
 
-    private int activeMoveStates = 0;
 
-    private Squad sq;
-
+    public bool isleader;
+    public bool alert = false;
+    public bool isdead = false;
 
 
     // Start is called before the first frame update
@@ -108,10 +111,10 @@ public abstract class AIbase : MonoBehaviour
     protected void UpdateAnimator()
     {
         Vector3 displacement = transform.position - previousPosition;
-        displacement *= 10;
+        displacement *= 10 ;
         Vector3 localDisplacement = transform.InverseTransformDirection(displacement);
         this.Animator.SetFloat("ZSpeed", localDisplacement.z);
-        this.Animator.SetFloat("XSpeed", -localDisplacement.x);
+        this.Animator.SetFloat("XSpeed", localDisplacement.x);
         
         previousPosition = transform.position;
     }
@@ -156,7 +159,16 @@ public abstract class AIbase : MonoBehaviour
 
     public void AddState(AIState st)
     {
-        if(states.Count > 0)
+
+        /*  foreach(AIState stp in states)
+          {
+              if(st.GetType() == stp.GetType())
+              {
+                  RemoveState(stp);
+                  break;
+              }
+          }*/
+        if (states.Count > 0)
         {
             if (!states[states.Count - 1].init())
             {
@@ -168,6 +180,8 @@ public abstract class AIbase : MonoBehaviour
         }
         else
         {
+            states.Add(new Idle());
+            AddState(st);
         }
         
         states.Add(st);
@@ -176,9 +190,9 @@ public abstract class AIbase : MonoBehaviour
 
     public void RemoveState(AIState st)
     {
-       
-       
+
         st.Interupt();
+        st.Finish();
         states.Remove(st);
     }
 
@@ -188,7 +202,10 @@ public abstract class AIbase : MonoBehaviour
     }
 
     public bool IsSeing(AIbase target)
+
     {
+        if (maxViewDistance < Vector3.Distance(eyePosition.position, target.eyePosition.position)) return false;
+
         if(Physics.Linecast(eyePosition.position, target.eyePosition.position, occlusionLayer)){
             return false;
         }
@@ -200,9 +217,16 @@ public abstract class AIbase : MonoBehaviour
 
     }
 
-    public List<AIbase> GetEnemies()
+    public AIbase GetEnemies()
     {
-        List<AIbase> enemies = new List<AIbase>();
+        if (target != null && IsSeing(target)) return target;
+        else
+        {
+            if(target != null && enemies.Contains(target))
+            {
+                enemies.Remove(target);
+            }
+        }
         foreach (AIbase ai in Population)
         {
             if (ai != this && ai.teamName != teamName)
@@ -211,9 +235,18 @@ public abstract class AIbase : MonoBehaviour
                 {
                     enemies.Add(ai);
                 }
+            
             }
         }
-        return enemies;
+        if(enemies.Count <= 0)
+        {
+            target = null;
+            alert = false;
+            return target;
+        }
+        target = enemies[Random.Range(0, enemies.Count - 1)];
+        alert = true;
+        return target;
     }
 
     public List<AIbase> GetFriends()
@@ -272,8 +305,7 @@ public abstract class AIbase : MonoBehaviour
         Vector3 dir = target.GetEyePosition() - GetEyePosition();
         float dist = dir.magnitude;
 
-        if (dist > maxDistance)
-            return false;
+        //if (maxViewDistance < Vector3.Distance(eyePosition.position, target.eyePosition.position)) return false;
 
         dir.Normalize();
 
@@ -301,6 +333,26 @@ public abstract class AIbase : MonoBehaviour
 
         return node.cover[h][dangerDir];
     }
+
+
+    public bool HasPassedPointXZ(Vector3 point, float radius)
+    {
+        Vector3 a = new Vector3(previousPosition.x, 0f, previousPosition.z);
+        Vector3 b = new Vector3(transform.position.x, 0f, transform.position.z);
+        Vector3 p = new Vector3(point.x, 0f, point.z);
+
+        Vector3 ab = b - a;
+        Vector3 ap = p - a;
+
+        float t = Vector3.Dot(ap, ab) / Vector3.Dot(ab, ab);
+        t = Mathf.Clamp01(t);
+
+        Vector3 closest = a + ab * t;
+
+        float dist = Vector3.Distance(closest, p);
+        return dist <= radius;
+    }
+
 
 
 

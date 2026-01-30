@@ -21,15 +21,15 @@ public class AStarTest : MonoBehaviour
             ? coverFrom.position - start.position
             : end.position - start.position;
 
-        List<Vector3> path = AStarPathFinder.FindPath(start.position, end.position);
+        //List<Vector3> path = AStarPathFinder.FindPath(start.position, end.position);
 
-        List<Vector3> pathCover = AStarPathFinder.FindPathWithCover(
-            start.position,
-            end.position,
-            GetClosestDirectionIndex(dir)
-        );
+        //List<Vector3> pathCover = AStarPathFinder.FindPathWithCover(
+        //  start.position,
+        //end.position,
+        //GetClosestDirectionIndex(dir)
+        //);
 
-        if (path != null)
+        /*if (path != null)
         {
             foreach (var p in path)
                 Debug.DrawLine(p, p + Vector3.up * 2, Color.magenta, 0.1f);
@@ -40,7 +40,7 @@ public class AStarTest : MonoBehaviour
             foreach (var p in pathCover)
                 Debug.DrawLine(p, p + Vector3.up * 2, Color.cyan, 0.1f);
         }
-    }
+    */}
 
 
 
