@@ -107,7 +107,7 @@ public class Squad : MonoBehaviour
             return results;
 
         float cellSizeX = Mathf.Abs(
-            NavGridGen.GridToWorld(1, 0).x - NavGridGen.GridToWorld(0, 0).x
+            NavGridGen.GridToWorld(1, 0,0).x - NavGridGen.GridToWorld(0, 0,0).x
         );
         int cellRadius = Mathf.CeilToInt(radius / cellSizeX);
 
@@ -127,7 +127,7 @@ public class Squad : MonoBehaviour
                 if (node.heights == null)
                     continue;
 
-                Vector3 basePos = NavGridGen.GridToWorld(i, j);
+                Vector3 basePos = NavGridGen.GridToWorld(i, j,0);
 
                 for (int h = 0; h < node.heights.Length; h++)
                 {

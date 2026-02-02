@@ -29,13 +29,13 @@ public class HumanoidLocoAnim : AIbase
         this.PlayState();
         if (canMove)
         {
-            moveType.MoveActor(m_Position);
+            moveType.MoveActor(m_Position,sprint,crouch);
         }
         else
         {
             if (!noGravity)
             {
-                moveType.MoveActor(transform.position);
+                moveType.MoveActor(transform.position,sprint,crouch);
                 if (!rb.detectCollisions) ;
                      //rb.detectCollisions = true;
 

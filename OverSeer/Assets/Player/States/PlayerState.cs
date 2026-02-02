@@ -36,7 +36,7 @@ public class PlayerState : AIbase
         if (canMove)
         {
             this.Animator.SetBool("Moving", true);
-            moveType.MoveActor(m_Position);
+            moveType.MoveActor(m_Position,sprint,crouch);
             UpdateAnimator();
         }
         else

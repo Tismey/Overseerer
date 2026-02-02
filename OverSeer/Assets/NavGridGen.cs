@@ -10,6 +10,9 @@ public struct NodeGrid
     public bool[][] cover;               // cover[h][8]
     public bool[] isCorner;
     public bool[] isInsideGeometry; // isCorner[h]
+    public bool[] occupied;
+
+    public HashSet<Vector3Int>[] visibleNodes; // visibleNode[h].Contains(new Vector3int(i,j,h))
 }
 
 
@@ -76,7 +79,7 @@ public class NavGridGen : MonoBehaviour
         {
             for (int j = 0; j < gridY; j++)
             {
-                Vector3 center = GridToWorld(i, j);
+                Vector3 center = GridToWorld(i, j,0);
                 Vector3 rayOrigin = new Vector3(center.x, worldMax.y + 50f, center.z);
 
                 float rayLength = Mathf.Abs(worldMax.y - worldMin.y) + 200f;
@@ -86,11 +89,12 @@ public class NavGridGen : MonoBehaviour
                 for (int h = 0; h < hits.Length; h++)
                     heights[h] = hits[h].point.y;
 
-                grid[i, j] = new NodeGrid { heights = heights };
+                grid[i, j] = new NodeGrid { heights = heights, occupied = new bool[heights.Length] };
             }
         }
 
         ComputeConnections();
+        ComputeVisibility(gridX / 2);
         ComputeCover();
     }
 
@@ -178,7 +182,7 @@ public class NavGridGen : MonoBehaviour
                 for (int hA = 0; hA < H; hA++)
                 {
                     float heightA = node.heights[hA];
-                    Vector3 posA = GridToWorld(i, j);
+                    Vector3 posA = GridToWorld(i, j,hA);
                     posA.y = heightA;
 
                     // Point intérieur → tout bloquer
@@ -209,7 +213,7 @@ public class NavGridGen : MonoBehaviour
                             continue;
                         }
 
-                        Vector3 neighborBase = GridToWorld(nx, ny);
+                        Vector3 neighborBase = GridToWorld(nx, ny,0);
 
                         // Trouve une hauteur valide
                         int hB = FindBestHeightIndex(neighbor, heightA, neighborBase);
@@ -222,8 +226,8 @@ public class NavGridGen : MonoBehaviour
                         Vector3 posB = neighborBase;
                         posB.y = heightB;
 
-                        bool blocked = Physics.Linecast(posA + Vector3.up * 5f,
-                                                        posB + Vector3.up * 5f,
+                        bool blocked = Physics.Linecast(posA + Vector3.up * 1f,
+                                                        posB + Vector3.up * 1f,
                                                         geometryMask);
 
                         if (blocked)
@@ -294,7 +298,7 @@ public class NavGridGen : MonoBehaviour
                     continue;
                 }
 
-                Vector3 basePos = GridToWorld(i, j);
+                Vector3 basePos = GridToWorld(i, j,0);
 
                 if (node.cover == null || node.cover.Length != H)
                     node.cover = new bool[H][];
@@ -322,7 +326,7 @@ public class NavGridGen : MonoBehaviour
                             continue;
                         }
 
-                        Vector3 neighborPos = GridToWorld(nx, ny);
+                        Vector3 neighborPos = GridToWorld(nx, ny,0);
                         neighborPos.y = posA.y;
 
                         float dist = Vector3.Distance(
@@ -402,14 +406,17 @@ public class NavGridGen : MonoBehaviour
 
 
     // ----------------------------------------------------------------------
-    public static Vector3 GridToWorld(int i, int j)
+    public static Vector3 GridToWorld(int i, int j, int h)
     {
         Vector3 min = pointA.position;
 
         float px = min.x + i * cellSizeX + cellSizeX / 2f;
         float pz = min.z + j * cellSizeZ + cellSizeZ / 2f;
 
-        return new Vector3(px, 0f, pz);
+        if (!ready) return new Vector3(px,0, pz);
+        if(grid[i, j].heights == null) return new Vector3(px, 0, pz);
+        if(grid[i, j].heights.Length <= h) return new Vector3(px, 0, pz);
+        return new Vector3(px,grid[i,j].heights[h], pz);
     }
 
     // Convertit un point monde en indices grille
@@ -487,6 +494,86 @@ public class NavGridGen : MonoBehaviour
         return true;
     }
 
+    public void ComputeVisibility(int maxCellRange = 6)
+    {
+        if (grid == null) return;
+
+        for (int i = 0; i < gridX; i++)
+        {
+            for (int j = 0; j < gridY; j++)
+            {
+                NodeGrid node = grid[i, j];
+                int H = node.heights == null ? 0 : node.heights.Length;
+                if (H == 0)
+                {
+                    grid[i, j] = node;
+                    continue;
+                }
+
+                node.visibleNodes = new HashSet<Vector3Int>[H];
+
+                for (int hA = 0; hA < H; hA++)
+                {
+                    node.visibleNodes[hA] = new HashSet<Vector3Int>();
+
+                    if (node.isInsideGeometry[hA])
+                        continue;
+
+                    Vector3 posA = GridToWorld(i, j, 0);
+                    posA.y = node.heights[hA] + 1.6f; // hauteur yeux
+
+                    // Parcours local borné
+                    for (int dx = -maxCellRange; dx <= maxCellRange; dx++)
+                    {
+                        for (int dy = -maxCellRange; dy <= maxCellRange; dy++)
+                        {
+                            int ni = i + dx;
+                            int nj = j + dy;
+
+                            if (ni < 0 || ni >= gridX || nj < 0 || nj >= gridY)
+                                continue;
+
+                            NodeGrid target = grid[ni, nj];
+                            if (target.heights == null || target.heights.Length == 0)
+                                continue;
+
+                            // distance cellule (rapide)
+                            if (dx * dx + dy * dy > maxCellRange * maxCellRange)
+                                continue;
+
+                            Vector3 baseB = GridToWorld(ni, nj, 0);
+
+                            for (int hB = 0; hB < target.heights.Length; hB++)
+                            {
+                                if (target.isInsideGeometry[hB])
+                                    continue;
+
+                                Vector3 posB = baseB;
+                                posB.y = target.heights[hB] + 10f;
+
+                                bool blocked = Physics.Linecast(
+                                    posA,
+                                    posB,
+                                    geometryMask
+                                );
+
+                                if (!blocked)
+                                {
+                                    node.visibleNodes[hA].Add(
+                                        new Vector3Int(ni, nj, hB)
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+
+                grid[i, j] = node;
+            }
+        }
+    }
+
+
 
 
     // ----------------------------------------------------------------------
@@ -511,7 +598,7 @@ public class NavGridGen : MonoBehaviour
             for (int j = 0; j < gridY; j++)
             {
                 NodeGrid node = grid[i, j];
-                Vector3 basePos = GridToWorld(i, j);
+                Vector3 basePos = GridToWorld(i, j,0);
 
                 if (node.heights == null) continue;
 
@@ -560,7 +647,7 @@ public class NavGridGen : MonoBehaviour
 
                             for(int hb = 0; hb < nb.heights.Length; hb++)
                             {
-                                Vector3 posB = GridToWorld(nx, ny);
+                                Vector3 posB = GridToWorld(nx, ny,0);
                                 posB.y = nb.heights[hb];
 
                                 Gizmos.color = Color.red;

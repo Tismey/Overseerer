@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -25,6 +25,8 @@ public abstract class AIbase : MonoBehaviour
     public Rigidbody rb;
 
     public bool canMove = false;
+    public bool sprint = false;
+    public bool crouch = false;
     public bool noGravity = false;
 
     public Transform righthand;
@@ -40,7 +42,7 @@ public abstract class AIbase : MonoBehaviour
     public float noise;
     public float noiseResetAmount = 5;
 
-
+    public float perceptionTimer = 0.5f;
 
     public bool isleader;
     public bool alert = false;
@@ -53,7 +55,7 @@ public abstract class AIbase : MonoBehaviour
         
         
         
-        // D�sactive tous les Rigidbody au d�but
+        // Désactive tous les Rigidbody au début
         
     }
 
@@ -83,6 +85,7 @@ public abstract class AIbase : MonoBehaviour
             Debug.Log("set " + i + "to null");
         }
 
+        perceptionTimer = Random.Range(0.2f, 1.2f);
 
     }
 
@@ -96,17 +99,24 @@ public abstract class AIbase : MonoBehaviour
         return noise;
     }
 
+    public static void RunAllAi()
+    {
+        foreach(AIbase ai in Population)
+        {
+            ai.AIthink();
+        }
+
+        foreach (AIbase ai in Population)
+        {
+            if(ai == null || ai.isdead)
+            {
+                Population.Remove(ai);
+            }
+        }
+    }
 
 
     // Update is called once per frame
-    void FixedUpdate()
-    {   
-        AIthink();
-        noise -= Time.deltaTime * noiseResetAmount;
-        if (noise < 0) noise = 0;
-
-
-    }
 
     protected void UpdateAnimator()
     {
@@ -202,27 +212,67 @@ public abstract class AIbase : MonoBehaviour
     }
 
     public bool IsSeing(AIbase target)
-
     {
-        if (maxViewDistance < Vector3.Distance(eyePosition.position, target.eyePosition.position)) return false;
+        if (target == null || target.transform == null)
+            return false;
 
-        if(Physics.Linecast(eyePosition.position, target.eyePosition.position, occlusionLayer)){
+        Vector3 eyeA = eyePosition.position;
+        Vector3 eyeB = target.eyePosition.position;
+
+        // 1️⃣ Distance (cheap)
+        if ((eyeB - eyeA).sqrMagnitude > maxViewDistance * maxViewDistance)
+            return false;
+
+        // 2️⃣ Grille : world → grid
+        if (!NavGridGen.WorldToGrid(eyeA, out int iA, out int jA, out int hA))
+            return false;
+
+        if (!NavGridGen.WorldToGrid(eyeB, out int iB, out int jB, out int hB))
+            return false;
+
+        // 3️⃣ Visibilité pré-calculée cellule → cellule
+        NodeGrid nodeA = NavGridGen.grid[iA, jA];
+
+        if (nodeA.visibleNodes == null ||
+            hA < 0 || hA >= nodeA.visibleNodes.Length ||
+            !nodeA.visibleNodes[hA].Contains(new Vector3Int(iB, jB, hB)))
+        {
             return false;
         }
-        Vector2 direction = new Vector2(target.eyePosition.position.x, target.eyePosition.position.z) - new Vector2(eyePosition.position.x, eyePosition.position.z);
-        if (Vector2.Angle(new Vector2(eyePosition.forward.x, eyePosition.forward.z), direction) > maxViewAngle) {
-            return false;        
-        }
-        return true;
 
+        // 4️⃣ Angle de vue (FOV)
+        Vector3 flatDir = eyeB - eyeA;
+        flatDir.y = 0f;
+
+        if (flatDir.sqrMagnitude < 0.0001f)
+            return true; // même position
+
+        float dot = Vector3.Dot(
+            eyePosition.forward.normalized,
+            flatDir.normalized
+        );
+
+        if (dot < Mathf.Cos(maxViewAngle * Mathf.Deg2Rad))
+            return false;
+
+
+        return true;
     }
+
 
     public AIbase GetEnemies()
     {
-        if (target != null && IsSeing(target)) return target;
+        if ((target != null && !target.isdead )&& IsSeing(target)) return target;
+
+        else if(perceptionTimer > 0)
+        {
+            perceptionTimer -= Time.deltaTime;
+            return null;
+        }
         else
         {
-            if(target != null && enemies.Contains(target))
+            perceptionTimer = Random.Range(0.2f, 1.2f);
+            if (target != null && enemies.Contains(target))
             {
                 enemies.Remove(target);
             }
@@ -245,6 +295,13 @@ public abstract class AIbase : MonoBehaviour
             return target;
         }
         target = enemies[Random.Range(0, enemies.Count - 1)];
+        
+        if (Physics.Linecast(GetEyePosition(), target.GetEyePosition(), occlusionLayer))
+        {
+            alert = false;
+            return null;
+        }
+            
         alert = true;
         return target;
     }
@@ -337,20 +394,13 @@ public abstract class AIbase : MonoBehaviour
 
     public bool HasPassedPointXZ(Vector3 point, float radius)
     {
-        Vector3 a = new Vector3(previousPosition.x, 0f, previousPosition.z);
-        Vector3 b = new Vector3(transform.position.x, 0f, transform.position.z);
-        Vector3 p = new Vector3(point.x, 0f, point.z);
+        int i, j, h;
+        int ip, jp, hp;
+        var vect = NavGridGen.WorldToGrid(transform.position, out i, out j, out h);
+        var vectp = NavGridGen.WorldToGrid(point, out ip, out jp, out hp);
+        if (i == ip && j == jp && h == hp) return true;
+        return false;
 
-        Vector3 ab = b - a;
-        Vector3 ap = p - a;
-
-        float t = Vector3.Dot(ap, ab) / Vector3.Dot(ab, ab);
-        t = Mathf.Clamp01(t);
-
-        Vector3 closest = a + ab * t;
-
-        float dist = Vector3.Distance(closest, p);
-        return dist <= radius;
     }
 
 

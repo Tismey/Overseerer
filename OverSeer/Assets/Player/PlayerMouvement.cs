@@ -72,10 +72,10 @@ public class PlayerMouvement : mouvementscript
 
     // Update is called once per frame
 
-    public override void MoveActor(Vector3 pos)
+    public override void MoveActor(Vector3 pos, bool sprint, bool crouch)
     {
        
-        this.QuakeMovementFunc(movementInput.x, movementInput.y, Input.GetKey(KeyCode.LeftShift), JumpInput);
+        this.QuakeMovementFunc(movementInput.x, movementInput.y, Input.GetKey(KeyCode.LeftShift), JumpInput, Input.GetKey(KeyCode.LeftControl));
         JumpInput = false;
     }
 

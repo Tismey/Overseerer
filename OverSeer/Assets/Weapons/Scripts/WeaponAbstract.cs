@@ -107,6 +107,7 @@ public abstract class WeaponAbstract : MonoBehaviour
     public void PutDown()
     {
         owner.weapon[owner.WeaponSelect] = null;
+        transform.SetParent(null, false);
         owner = null;
         pickedUp = false;
         bufferTimer = 0f;
@@ -114,8 +115,11 @@ public abstract class WeaponAbstract : MonoBehaviour
 
     private void PickUp()
     {
-        transform.rotation = owner.transform.rotation;
-        transform.position = owner.righthand.position;
+       
+            transform.SetParent(owner.righthand, true);
+            transform.localPosition = Vector3.zero;
+            transform.localRotation = Quaternion.identity;
+
         var offset = owner.righthand.position - handle.position;
         transform.position += offset;
     }
@@ -125,10 +129,7 @@ public abstract class WeaponAbstract : MonoBehaviour
     {
         if (pickedUp)
         {
-            transform.rotation = owner.eyePosition.transform.rotation;
-            transform.position = owner.righthand.position;
-            var offset = owner.righthand.position - handle.position;
-            transform.position += offset;
+            PickUp();
         }
     }
 

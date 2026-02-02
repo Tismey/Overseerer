@@ -11,14 +11,15 @@ public class Die : AIState
         ai.SetRagdollState(true);
         ai.ragdollHolder.transform.parent = null;
         ai.Animator.enabled = false;
-        AIbase.Population.Remove(ai);
-        GameObject.Destroy(ai.gameObject);
+        ai.isdead = true;
+        
         return;
     }
     public override void act()
     {
 
 
+        hasEnded = true;
     }
 
     public override void Interupt()
@@ -29,9 +30,10 @@ public class Die : AIState
 
     public override void Finish()
     {
-        this.Animator.ResetTrigger("Stagger");
+
         this.ai.lockRoot.Lock();
         this.ai.lockRoot.PreCalc();
+        GameObject.Destroy(ai.gameObject);
         hasEnded = true;
         this.ai.noGravity = false;
     }

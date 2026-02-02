@@ -11,12 +11,17 @@ public abstract class mouvementscript : MonoBehaviour
     public float MAXSPEED = 30f;
     public float MAXACCEL = 3 ;
     public const float MAXAIR = 1f;
+    private float MAXHEIGTHSTAND = 2f;
+    private float MAXHEIGTHCROUCH = 1f;
+
     public float MAXHEIGTH = 10f;
     private float RAYOFFSET = 1f; //for consitency when hitting the ground
     public float jumpHeight;
     public float decay = 20f;
-    public float sprintp = 1.20f;
+    public float sprintp = 2f;
+    public float crouchp = 0.5f;
     private float sprintm;
+    private float crouchm;
     public float xmov;
     public float zmov;
     public bool noclip;
@@ -29,7 +34,7 @@ public abstract class mouvementscript : MonoBehaviour
 
 
     // Update is called once per frame
-    public void QuakeMovementFunc(float x, float z,bool run, bool jump)
+    public void QuakeMovementFunc(float x, float z,bool run, bool jump,bool crouch)
     {
 
       
@@ -48,20 +53,20 @@ public abstract class mouvementscript : MonoBehaviour
              transform.position + Vector3.down * RAYOFFSET,
              wishdir,
              out wallHit,
-             0.9f,
+             0.4f,
              layermask
          ) || Physics.Raycast(
              transform.position + Vector3.down * RAYOFFSET + Vector3.right,
              wishdir,
              out wallHit,
-             0.9f,
+             0.4f,
              layermask)
 
          || Physics.Raycast(
              transform.position + Vector3.down * RAYOFFSET - Vector3.right,
              wishdir,
              out wallHit,
-             0.9f,
+             0.4f,
              layermask))
          {
              // Si on pousse vers le mur
@@ -96,6 +101,17 @@ public abstract class mouvementscript : MonoBehaviour
                 sprintm = 1;
             }
 
+            if (crouch)
+            {
+                crouchm = crouchp;
+                MAXHEIGTH = MAXHEIGTHCROUCH;
+            }
+        else
+        {
+            crouchm = 1f;
+            MAXHEIGTH = MAXHEIGTHSTAND;
+        }
+
            
 
 
@@ -118,8 +134,8 @@ public abstract class mouvementscript : MonoBehaviour
 
                     transform.position = new Vector3(transform.position.x, hit.point.y + MAXHEIGTH - 0.01f, transform.position.z) ;
                     rb.velocity += new Vector3(-rb.velocity.x/decay, 0, -rb.velocity.z/decay);
-                    float addspeed = Mathf.Clamp(MAXSPEED - currentspeed, 0, MAXACCEL * Time.fixedDeltaTime);
-                    rb.velocity += (addspeed * wishdir * sprintm);
+                    float addspeed = Mathf.Clamp(MAXSPEED - currentspeed, 0, (MAXACCEL) * Time.fixedDeltaTime);
+                    rb.velocity += (addspeed * wishdir * sprintm * crouchm);
 
                    
 
@@ -179,7 +195,7 @@ public abstract class mouvementscript : MonoBehaviour
     }
 
 
-    public abstract void MoveActor(Vector3 pos);
+    public abstract void MoveActor(Vector3 pos,bool sprint, bool crouch);
    
 
 }

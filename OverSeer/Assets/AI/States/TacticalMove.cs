@@ -40,12 +40,13 @@ public class TacticalMove : AIState
     // -------------------------------------------------------------
     public override void Setup()
     {
-        ComputePath();
-        ((AiMouvement)ai.moveType).avoidObstacle = false;
         if (!sprint)
             this.Animator.Play("JogMoveTree");
         else
             this.Animator.Play("Sprint");
+        ComputePath();
+        ((AiMouvement)ai.moveType).avoidObstacle = false;
+      
         this.ai.lockRoot.Lock();
 
     }
@@ -74,8 +75,8 @@ public class TacticalMove : AIState
     {
         ai.canMove = true;
 
-
-
+        ai.crouch = false;
+        ai.sprint = sprint;
         if (path == null || currentIndex >= path.Count)
         {
             hasEnded = true;
@@ -97,37 +98,40 @@ public class TacticalMove : AIState
         // -----------------------------------------
         // 2) Climb detection
         // -----------------------------------------
-        /*if (CheckForClimb())
-            return; // climbing took over → stop moving here*/
+        //if (CheckForClimb())
+        //  return; // climbing took over → stop moving here*/
 
         // -----------------------------------------
         // 3) Move along the path
         // -----------------------------------------
-        if (ai.GetEnemies() != null)
+
+        var enemy = ai.GetEnemies();
+        if (enemy !=  null)
         {
+            danger = enemy.transform.position;
             if (!forceMove)
             {
-                ai.AddState(new StaticCombat(ai.transform.position, ai.GetEnemies().transform.position));
+                ai.AddState(new StaticCombat(ai.transform.position, danger));
                 return;
             }
                 
             if(!sprint)
             {
-                danger = ai.GetEnemies().transform.position;
                 ai.LookTowards(danger);
                 ai.lockRoot.shoulderLook(danger);
                 if (ai.weapon[ai.WeaponSelect] != null)
-
-                    ai.weapon[ai.WeaponSelect].Shoot(
-                        (danger - ai.eyePosition.position).normalized,
-                        ai.GetEyePosition()
-                    );
+                    if (Random.Range(0, 9) == 0)
+                    {
+                        ai.weapon[ai.WeaponSelect].Shoot(
+                       (danger - ai.eyePosition.position).normalized,
+                                   ai.GetEyePosition()
+                   );
+                    }
 
                 if (ai.weapon[ai.WeaponSelect] != null && !ai.weapon[ai.WeaponSelect].CanShoot())
                 {
-                    Debug.Log("heloo");
                     sprint = true;
-                    Setup();
+                    this.Animator.Play("Sprint");
                 }
             }
         }

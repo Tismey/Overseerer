@@ -12,7 +12,7 @@ public class AStarTest : MonoBehaviour
 
 
 
-    void FixedUpdate()
+    void Update()
     {
         if (start == null || end == null)
             return;
@@ -20,6 +20,8 @@ public class AStarTest : MonoBehaviour
         Vector3 dir = coverFrom != null
             ? coverFrom.position - start.position
             : end.position - start.position;
+
+        AIbase.RunAllAi();
 
         //List<Vector3> path = AStarPathFinder.FindPath(start.position, end.position);
 

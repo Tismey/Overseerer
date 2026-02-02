@@ -10,10 +10,13 @@ public class StaticCombat : AIState
     private bool crouched;
 
     private float crouchTimer = 0f;
-    private float crouchCooldown;
+    private float crouchCooldown = 5f;
 
     private float peekTimer = 0f;
     private float peekDelay = 1.5f;
+
+    private float timerCount = 0f;
+    private float timerExit = 10f;
 
     public StaticCombat(Vector3 holdPos, Vector3 danger)
     {
@@ -35,9 +38,10 @@ public class StaticCombat : AIState
         if (crouched)
             Animator.Play("IdleCrouch");
         else
-            Animator.Play("JogMoveTree"); ;
+            Animator.Play("StandAim");
 
-        crouchCooldown = Random.Range(1.5f, 3.5f);
+        crouchCooldown = Random.Range(1.5f, 4.5f);
+        timerExit = Random.Range(timerExit - timerExit / 2, timerExit + timerExit / 2);
     }
 
     public override void Continue()
@@ -51,7 +55,7 @@ public class StaticCombat : AIState
         if (crouched)
             Animator.Play("IdleCrouch");
         else
-            Animator.Play("JogMoveTree");
+            Animator.Play("StandAim");
 
         crouchCooldown = Random.Range(1.5f, 3.5f);
     }
@@ -61,6 +65,13 @@ public class StaticCombat : AIState
     // -------------------------------------------------
     public override void act()
     {
+        timerCount += Time.deltaTime;
+        ai.crouch = crouched;
+
+        if (timerCount > timerExit)
+        {
+            hasEnded = true;
+        }
         AIbase enemies = ai.GetEnemies();
         
         bool enemyVisible = enemies != null;
@@ -85,7 +96,8 @@ public class StaticCombat : AIState
                 );
                 Debug.Log("try to get new cover");
                 ai.AddState(new TacticalMove(newCover, danger, false,true));
-                hasEnded = true;
+                this.Animator.Play("JogMoveTree");
+
                 return;
             }
 
@@ -103,7 +115,8 @@ public class StaticCombat : AIState
                 if (crouchTimer > crouchCooldown)
                 {
                     crouched = false;
-                    Animator.Play("JogMoveTree");
+                    crouchTimer = 0f;
+                    Animator.Play("StandAim");
                 }
             }
 
@@ -113,6 +126,7 @@ public class StaticCombat : AIState
             if (enemyLookingAtUs)
             {
                 crouchTimer = 0f;
+                crouched = true;
                 Animator.Play("IdleCrouch");
                 return;
             }
@@ -121,17 +135,9 @@ public class StaticCombat : AIState
         // -------------------------------------------------
         // 3) PEEK LOGIC
         // -------------------------------------------------
-        peekTimer += Time.deltaTime;
-        if (peekTimer > peekDelay)
-        {
-            Vector3 peekPos = FindClosestPeek(
-                ai.transform.position,
-                danger
-            );
+      
 
-            ai.AddState(new TacticalMove(peekPos, danger, false,true));
-            hasEnded = true;
-        }
+        
     }
 
     // -------------------------------------------------
@@ -149,11 +155,14 @@ public class StaticCombat : AIState
         if (!ai.weapon[ai.WeaponSelect].CanShoot()) return;
 
 
-
-        ai.weapon[ai.WeaponSelect].Shoot(
-            (danger - ai.eyePosition.position).normalized,
-                        ai.GetEyePosition()
-        );
+        if(Random.Range(0,9) == 0)
+        {
+            ai.weapon[ai.WeaponSelect].Shoot(
+           (danger - ai.eyePosition.position).normalized,
+                       ai.GetEyePosition()
+       );
+        }
+       
     }
 
     // -------------------------------------------------
@@ -162,11 +171,13 @@ public class StaticCombat : AIState
     public override void Interupt()
     {
         ai.canMove = false;
+        ai.crouch = false;
     }
 
     public override void Finish()
     {
         ai.canMove = false;
+        ai.crouch = false; 
         hasEnded = true;
     }
 
@@ -197,22 +208,24 @@ public class StaticCombat : AIState
 
                 for (int h = 0; h < node.heights.Length; h++)
                 {
+
+                    if (!NavGridGen.IsValid(i, j, h))
+                        continue;
                     if (!node.isInsideGeometry[h])
                         continue;
 
-                    Vector3 worldPos = NavGridGen.GridToWorld(i, j);
+                    Vector3 worldPos = NavGridGen.GridToWorld(i, j,h);
 
                     float dist = Vector3.Distance(origin, worldPos);
                     if (dist > radius)
                         continue;
 
-                    // Check des 8 coins possibles
-                    for (int c = 0; c < 8; c++)
-                    {
-                        if (!node.isCorner[c])
+                    
+                    
+                        if (!node.isCorner[h])
                             continue;
 
-                        Vector2 off = NavGridGen.offsets[c];
+                        Vector2 off = NavGridGen.offsets[h];
                         Vector3 cornerDir = new Vector3(off.x, 0f, off.y).normalized;
 
                         float dot = Vector3.Dot(cornerDir, dangerDir);
@@ -226,7 +239,7 @@ public class StaticCombat : AIState
                             bestScore = score;
                             bestPeek = worldPos;
                         }
-                    }
+                    
                 }
             }
         }
@@ -270,11 +283,11 @@ public class StaticCombat : AIState
                     if (node.isInsideGeometry[h])
                         continue;
 
-                    bestCover = NavGridGen.GridToWorld(i, j);
+                    bestCover = NavGridGen.GridToWorld(i, j,h);
                     if (!node.cover[h][dangerIndex])
                         continue;
 
-                    Vector3 pos = NavGridGen.GridToWorld(i, j);
+                    Vector3 pos = NavGridGen.GridToWorld(i, j,h);
 
                     l.Add(pos);
                 }

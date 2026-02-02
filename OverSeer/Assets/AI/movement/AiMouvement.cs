@@ -9,39 +9,29 @@ public class AiMouvement : mouvementscript
     public LayerMask obstacleLayer;
     public LayerMask other;
     public bool avoidObstacle = true;
+    private AIbase ai;
     float x = 0;
     float z = 0;
-    public override void MoveActor(Vector3 pos)
+
+    private void Start()
+    {
+        ai = GetComponent<AIbase>();
+    }
+    public override void MoveActor(Vector3 pos,bool sprint, bool crouch)
     {
 
         float dist = Vector3.Distance(transform.position, pos);
         if (dist < 0.1f)
         {
-            this.QuakeMovementFunc(0, 0, false, false);
+            this.QuakeMovementFunc(0, 0, sprint, false,crouch);
             return;
         }
-       
-        var angToTar = Vector3.SignedAngle( pos - transform.position, transform.forward, transform.up);
+        var toTarget = (pos - transform.position);
 
-        /* if (angToTar < 70 && angToTar > -70)
-         {
-             z = 1f;
-         }
-         else if (angToTar > 110 || angToTar < -110)
-         {
-             z = -1f;
-         }
-         else{ z = 0; }
+        Vector3 dir = toTarget / dist; // normalisation safe
 
-         if (angToTar > 20 && angToTar < 160)
-         {
-             x = 1f;
-         }
-         else if (angToTar < -20 && angToTar > -160)
-         {
-             x = -1f;
-         }
-        else { x = 0; }*/
+        var angToTar = Vector3.SignedAngle(transform.forward,dir, Vector3.up);
+
         float sin = Mathf.Sin(angToTar * Mathf.Deg2Rad);
         float cos = Mathf.Cos(angToTar * Mathf.Deg2Rad);
 
@@ -60,68 +50,70 @@ public class AiMouvement : mouvementscript
         }
             
 
-        x *= dist;
-        z *= dist;
+        //x *= dist;
+        //z *= dist;
         x = Mathf.Clamp(x, -1, 1);
         z = Mathf.Clamp(z, -1, 1);
-        
 
-        this.QuakeMovementFunc(-x, z,false,false);
+
+        Vector3 desired = new Vector3(x,0,z).normalized;
+        Vector3 avoidance = obstacleAvoidance();
+
+        RaycastHit hit;
+        Vector3 finalDir = desired;
+        if (!ObstacleInFront(out hit)) avoidance = desired;
+            finalDir = Vector3.Lerp(desired, avoidance, 0.7f);
+
+
+
+        this.QuakeMovementFunc(finalDir.x, finalDir.z,ai.sprint,false,ai.crouch);
         //this.RotateActorTowards(pos,2f);
     }
 
-    public Vector2 obstacleAvoidance()
+    public Vector3 obstacleAvoidance()
     {
-
-        Vector2 ret = new Vector2(0, 0);
+        Vector3 n = Vector3.one;
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, transform.forward + transform.right, out hit, 4f))
-        {
-            //Debug.DrawRay(transform.position, (transform.forward - transform.right) * 4f, Color.red, 1f);
-            //Debug.DrawRay(transform.position, (transform.forward + transform.right) * 4f, Color.green, 1f);
-            
-            if (((1 << hit.collider.gameObject.layer) & obstacleLayer) != 0 || ((1 << hit.collider.gameObject.layer) & other) != 0)
-            {
-                ret.x = 2;
-                ret.y = -1;
-       
-            }
-            
-        }
-        if (Physics.Raycast(transform.position, transform.forward - transform.right, out hit, 4f))
-        {
-            if (((1 << hit.collider.gameObject.layer) & obstacleLayer) != 0 || ((1 << hit.collider.gameObject.layer) & other) != 0)
-            {
-                ret.x = -2;
-                ret.y = -1;
-
-            }
-            
-        }
-
-        if (Physics.Raycast(transform.position, transform.right, out hit, 2f))
-        {
-            //Debug.DrawRay(transform.position, (transform.forward - transform.right) * 4f, Color.red, 1f);
-            //Debug.DrawRay(transform.position, (transform.forward + transform.right) * 4f, Color.green, 1f);
-
-            if (((1 << hit.collider.gameObject.layer) & obstacleLayer) != 0 || ((1 << hit.collider.gameObject.layer) & other) != 0)
-            {
-                ret.x = 2;
- 
-
-            }
-
-        }
-        if (Physics.Raycast(transform.position, -transform.right, out hit, 2f))
-        {
-            if (((1 << hit.collider.gameObject.layer) & obstacleLayer) != 0 || ((1 << hit.collider.gameObject.layer) & other) != 0)
-            {
-                ret.x = -2;
-            
-            }
-
-        }
-
-        return ret;
+        if (ObstacleInFront(out hit))
+             n = ComputeAvoidance(hit);
+        return n;
     }
+
+    bool IsObstacle(int layer)
+    {
+        return ((1 << layer) & obstacleLayer) != 0
+            || ((1 << layer) & other) != 0;
+    }
+
+    bool ObstacleInFront(out RaycastHit hit)
+    {
+        /* Vector3 center = transform.position + transform.forward * 1.5f;
+         Vector3 halfExtents = new Vector3(0.6f, 1f, 1.5f);
+
+         return Physics.BoxCast(
+             center,
+             halfExtents,
+             transform.forward,
+             out hit,
+             transform.rotation,
+             0f,
+             other
+         );*/
+        hit = new RaycastHit();
+        return false;
+    }
+
+
+    Vector3 ComputeAvoidance(RaycastHit hit)
+    {
+        Vector3 obstacleNormal = hit.normal;
+
+        // Projeter le mouvement hors de l’obstacle
+        Vector3 avoidDir = Vector3.ProjectOnPlane(transform.forward, obstacleNormal);
+
+        return avoidDir.normalized;
+    }
+
+
+
 }

@@ -119,7 +119,7 @@ public class SquadLeader : AIState
                 if (node.heights == null)
                     continue;
 
-                Vector3 basePos = NavGridGen.GridToWorld(i, j);
+                Vector3 basePos = NavGridGen.GridToWorld(i, j,0);
 
                 for (int h = 0; h < node.heights.Length; h++)
                 {

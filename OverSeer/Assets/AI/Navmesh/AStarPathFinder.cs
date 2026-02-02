@@ -129,10 +129,10 @@ public class AStarPathFinder
                 if (closed.Contains((nx, ny, nh)))
                     continue;
 
-                Vector3 posA = NavGridGen.GridToWorld(current.x, current.y);
+                Vector3 posA = NavGridGen.GridToWorld(current.x, current.y,current.h);
                 posA.y = currentHeight;
 
-                Vector3 posB = NavGridGen.GridToWorld(nx, ny);
+                Vector3 posB = NavGridGen.GridToWorld(nx, ny, current.h);
                 posB.y = neigh.heights[nh];
 
                 float cost = Vector3.Distance(posA, posB);
@@ -228,11 +228,11 @@ public class AStarPathFinder
 
                 if (closed.Contains((nx, ny, nh)))
                     continue;
-
-                Vector3 posA = NavGridGen.GridToWorld(current.x, current.y);
+                
+                Vector3 posA = NavGridGen.GridToWorld(current.x, current.y,current.h);
                 posA.y = currentHeight;
 
-                Vector3 posB = NavGridGen.GridToWorld(nx, ny);
+                Vector3 posB = NavGridGen.GridToWorld(nx, ny,nh);
                 posB.y = neigh.heights[nh];
 
                 float baseCost = Vector3.Distance(posA, posB);
@@ -306,7 +306,7 @@ public class AStarPathFinder
 
         while (cur != null)
         {
-            Vector3 pos = NavGridGen.GridToWorld(cur.x, cur.y);
+            Vector3 pos = NavGridGen.GridToWorld(cur.x, cur.y,cur.h);
             pos.y = NavGridGen.grid[cur.x, cur.y].heights[cur.h];
             path.Add(pos);
 

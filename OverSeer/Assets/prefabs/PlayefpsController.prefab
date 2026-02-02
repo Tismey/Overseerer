@@ -2548,9 +2548,9 @@ CapsuleCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   m_Radius: 0.6995544
-  m_Height: 3.459725
+  m_Height: 2.0545757
   m_Direction: 1
-  m_Center: {x: -0.07769722, y: 0, z: -0.017382324}
+  m_Center: {x: -0.07769722, y: 0.7025746, z: -0.017382324}
 --- !u!114 &7614694081872674337
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2567,12 +2567,13 @@ MonoBehaviour:
   body: {fileID: 7614694081872674339}
   targetvel: 200
   sprintmofier: 2
-  MAXSPEED: 30
+  MAXSPEED: 60
   MAXACCEL: 90
   MAXHEIGTH: 2
   jumpHeight: 10
   decay: 5
   sprintp: 1.2
+  crouchp: 0.7
   xmov: 0
   zmov: 0
   noclip: 0
@@ -2621,6 +2622,8 @@ MonoBehaviour:
   moveType: {fileID: 7614694081872674337}
   Animator: {fileID: 1242479766970271815}
   teamName: Player
+  enemies: []
+  target: {fileID: 0}
   maxViewDistance: 0
   maxViewAngle: 0
   occlusionLayer:
@@ -2628,6 +2631,8 @@ MonoBehaviour:
     m_Bits: 320
   rb: {fileID: 7614694081872674336}
   canMove: 0
+  sprint: 0
+  crouch: 0
   noGravity: 0
   righthand: {fileID: 2485175773584593623}
   weapon:
@@ -2636,6 +2641,11 @@ MonoBehaviour:
   lockRoot: {fileID: 7614694081872674347}
   health: {fileID: 0}
   ragdollHolder: {fileID: 0}
+  noise: 0
+  noiseResetAmount: 5
+  isleader: 0
+  alert: 0
+  isdead: 0
   rotationSpeed: 10
   team: 
   NodesInPossesion: 00000000
@@ -2654,6 +2664,10 @@ MonoBehaviour:
   l_controller: {fileID: 7614694081872674349}
   l_model: {fileID: 6281073704643411218}
   l_metaRig: {fileID: 1906707572081021692}
+  shoulderBone: {fileID: 0}
+  minAngle: -45
+  maxAngle: 45
+  rotationAxis: {x: 1, y: 0, z: 0}
 --- !u!114 &-3320200689257155648
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -9,7 +9,7 @@ public class Climb : AIState
     private Vector3 pos;
     private Vector3 offset = new Vector3(0, 1f, 0);
     private Vector3 surfaceDir;
-    private string animationName = "climbLow";
+    private string animationName = "climbHigh";
 
 
     public Climb(Vector3 pos, Vector3 surfaceDir)
