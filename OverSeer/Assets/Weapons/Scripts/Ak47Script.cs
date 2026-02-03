@@ -33,7 +33,7 @@ public class Ak47Script : WeaponAbstract
         }
         else
         {
-            var b = Instantiate(bullet, pos + owner.transform.forward, muzzle.rotation);
+            var b = Instantiate(bullet, muzzle.position, muzzle.rotation);
             b.GetComponent<Rigidbody>().AddForce(dir * 10000f);
         }
         

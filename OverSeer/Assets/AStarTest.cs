@@ -12,7 +12,7 @@ public class AStarTest : MonoBehaviour
 
 
 
-    void Update()
+    void FixedUpdate()
     {
         if (start == null || end == null)
             return;

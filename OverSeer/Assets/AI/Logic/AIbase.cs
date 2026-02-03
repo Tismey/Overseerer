@@ -48,6 +48,8 @@ public abstract class AIbase : MonoBehaviour
     public bool alert = false;
     public bool isdead = false;
 
+    private string animationStr;
+
 
     // Start is called before the first frame update
     void Awake()
@@ -106,13 +108,13 @@ public abstract class AIbase : MonoBehaviour
             ai.AIthink();
         }
 
-        foreach (AIbase ai in Population)
+       /* foreach (AIbase ai in Population)
         {
             if(ai == null || ai.isdead)
             {
                 Population.Remove(ai);
             }
-        }
+        }*/
     }
 
 
@@ -120,6 +122,8 @@ public abstract class AIbase : MonoBehaviour
 
     protected void UpdateAnimator()
     {
+
+        UpdateAnimation();
         Vector3 displacement = transform.position - previousPosition;
         displacement *= 10 ;
         Vector3 localDisplacement = transform.InverseTransformDirection(displacement);
@@ -220,7 +224,8 @@ public abstract class AIbase : MonoBehaviour
         Vector3 eyeB = target.eyePosition.position;
 
         // 1️⃣ Distance (cheap)
-        if ((eyeB - eyeA).sqrMagnitude > maxViewDistance * maxViewDistance)
+        Vector3 diff = eyeB - eyeA;
+        if (diff.sqrMagnitude > maxViewDistance * maxViewDistance)
             return false;
 
         // 2️⃣ Grille : world → grid
@@ -230,43 +235,48 @@ public abstract class AIbase : MonoBehaviour
         if (!NavGridGen.WorldToGrid(eyeB, out int iB, out int jB, out int hB))
             return false;
 
-        // 3️⃣ Visibilité pré-calculée cellule → cellule
+        // 3️⃣ Visibilité pré-calculée (BITMASK)
         NodeGrid nodeA = NavGridGen.grid[iA, jA];
 
-        if (nodeA.visibleNodes == null ||
-            hA < 0 || hA >= nodeA.visibleNodes.Length ||
-            !nodeA.visibleNodes[hA].Contains(new Vector3Int(iB, jB, hB)))
-        {
+        if (nodeA.visibilityMask == null ||
+            hA < 0 || hA >= nodeA.visibilityMask.Length)
             return false;
-        }
+        int bit = NavGridGen.GetRelativeCellBit(iA, jA, iB, jB);
+        int chunk = bit >> 6;
+        int shift = bit & 63;
+        if (nodeA.visibilityMask[hA] == null) return false;
+        if (chunk >= nodeA.visibilityMask[hA].Length || chunk < 0) return false; //NULL REFERENCE?
+
+        if ((nodeA.visibilityMask[hA][chunk] & (1UL << shift)) == 0)
+            return false;
+
 
         // 4️⃣ Angle de vue (FOV)
-        Vector3 flatDir = eyeB - eyeA;
-        flatDir.y = 0f;
-
-        if (flatDir.sqrMagnitude < 0.0001f)
-            return true; // même position
+        diff.y = 0f;
+        if (diff.sqrMagnitude < 0.0001f)
+            return true;
 
         float dot = Vector3.Dot(
-            eyePosition.forward.normalized,
-            flatDir.normalized
+            eyePosition.forward,
+            diff.normalized
         );
 
         if (dot < Mathf.Cos(maxViewAngle * Mathf.Deg2Rad))
             return false;
 
-
         return true;
     }
 
 
+
     public AIbase GetEnemies()
     {
-        if ((target != null && !target.isdead )&& IsSeing(target)) return target;
+        if ((target != null && !target.isdead) && IsSeing(target) && !Physics.Linecast(GetEyePosition(), target.GetEyePosition(), occlusionLayer)) { alert = true; return target; }
 
-        else if(perceptionTimer > 0)
+        else if (perceptionTimer > 0)
         {
             perceptionTimer -= Time.deltaTime;
+            alert = false;
             return null;
         }
         else
@@ -391,6 +401,18 @@ public abstract class AIbase : MonoBehaviour
         return node.cover[h][dangerDir];
     }
 
+    public void SetAnimationString(string str)
+    {
+        animationStr = str;
+    }
+
+    public void UpdateAnimation()
+    {
+        if (!Animator.GetCurrentAnimatorStateInfo(0).IsName(animationStr))
+        {
+            Animator.Play(animationStr);
+        }
+    }
 
     public bool HasPassedPointXZ(Vector3 point, float radius)
     {
@@ -398,7 +420,7 @@ public abstract class AIbase : MonoBehaviour
         int ip, jp, hp;
         var vect = NavGridGen.WorldToGrid(transform.position, out i, out j, out h);
         var vectp = NavGridGen.WorldToGrid(point, out ip, out jp, out hp);
-        if (i == ip && j == jp && h == hp) return true;
+        if (i == ip && j == jp) return true;
         return false;
 
     }

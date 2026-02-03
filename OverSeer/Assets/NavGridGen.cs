@@ -12,7 +12,12 @@ public struct NodeGrid
     public bool[] isInsideGeometry; // isCorner[h]
     public bool[] occupied;
 
-    public HashSet<Vector3Int>[] visibleNodes; // visibleNode[h].Contains(new Vector3int(i,j,h))
+    // ✅ nouveau
+    public ulong[][] visibilityMask;
+    // visibilityMask[h][chunk]
+
+    // visibilityMask[h] : bitmask des cellules visibles
+
 }
 
 
@@ -41,6 +46,15 @@ public class NavGridGen : MonoBehaviour
     private static float cellSizeZ;
 
     public static bool ready = false;
+
+    public static int CellCount => gridX * gridY;
+
+
+    public static int visibilityRange = 50;
+    public static int visibilitySide = visibilityRange * 2 + 1;
+    public static int visibilityCellCount = visibilitySide * visibilitySide;
+    public static int visibilityChunkCount = (visibilityCellCount + 63) / 64;
+
 
     public static Vector2Int[] offsets = new Vector2Int[]
     {
@@ -128,6 +142,21 @@ public class NavGridGen : MonoBehaviour
 
         return -1;
     }
+
+    public static int GetRelativeCellBit(int iA, int jA, int iB, int jB)
+    {
+
+        int dx = iB - iA;
+        int dy = jB - jA;
+
+        if (dx < -visibilityRange || dx > visibilityRange ||
+            dy < -visibilityRange || dy > visibilityRange)
+            return -1;
+
+        return (dx + visibilityRange) * visibilitySide + (dy + visibilityRange);
+    }
+
+
 
     // ----------------------------------------------------------------------
     public void ComputeConnections(float maxSlope = 35f)
@@ -494,39 +523,43 @@ public class NavGridGen : MonoBehaviour
         return true;
     }
 
-    public void ComputeVisibility(int maxCellRange = 6)
+    public void ComputeVisibility(int maxCellRange = 50)
     {
         if (grid == null) return;
+
+        int range = visibilityRange;
+        int side = visibilitySide;
+        int cellCount = visibilityCellCount;
+        int chunkCount = visibilityChunkCount;
 
         for (int i = 0; i < gridX; i++)
         {
             for (int j = 0; j < gridY; j++)
             {
                 NodeGrid node = grid[i, j];
-                int H = node.heights == null ? 0 : node.heights.Length;
-                if (H == 0)
-                {
-                    grid[i, j] = node;
-                    continue;
-                }
+                int H = node.heights?.Length ?? 0;
+                if (H == 0) continue;
 
-                node.visibleNodes = new HashSet<Vector3Int>[H];
+                // 🔹 masque multi-ulong
+                node.visibilityMask = new ulong[H][];
 
                 for (int hA = 0; hA < H; hA++)
                 {
-                    node.visibleNodes[hA] = new HashSet<Vector3Int>();
-
                     if (node.isInsideGeometry[hA])
                         continue;
 
-                    Vector3 posA = GridToWorld(i, j, 0);
-                    posA.y = node.heights[hA] + 1.6f; // hauteur yeux
+                    node.visibilityMask[hA] = new ulong[chunkCount];
 
-                    // Parcours local borné
-                    for (int dx = -maxCellRange; dx <= maxCellRange; dx++)
+                    Vector3 posA = GridToWorld(i, j, 0);
+                    posA.y = node.heights[hA] + 10f;
+
+                    for (int dx = -range; dx <= range; dx++)
                     {
-                        for (int dy = -maxCellRange; dy <= maxCellRange; dy++)
+                        for (int dy = -range; dy <= range; dy++)
                         {
+                            if (dx * dx + dy * dy > range * range)
+                                continue;
+
                             int ni = i + dx;
                             int nj = j + dy;
 
@@ -534,14 +567,11 @@ public class NavGridGen : MonoBehaviour
                                 continue;
 
                             NodeGrid target = grid[ni, nj];
-                            if (target.heights == null || target.heights.Length == 0)
-                                continue;
-
-                            // distance cellule (rapide)
-                            if (dx * dx + dy * dy > maxCellRange * maxCellRange)
-                                continue;
+                            if (target.heights == null) continue;
 
                             Vector3 baseB = GridToWorld(ni, nj, 0);
+
+                            bool visible = false;
 
                             for (int hB = 0; hB < target.heights.Length; hB++)
                             {
@@ -549,21 +579,26 @@ public class NavGridGen : MonoBehaviour
                                     continue;
 
                                 Vector3 posB = baseB;
-                                posB.y = target.heights[hB] + 10f;
+                                posB.y = target.heights[hB] + 1.6f;
 
-                                bool blocked = Physics.Linecast(
-                                    posA,
-                                    posB,
-                                    geometryMask
-                                );
-
-                                if (!blocked)
+                                if (!Physics.Linecast(posA, posB, geometryMask))
                                 {
-                                    node.visibleNodes[hA].Add(
-                                        new Vector3Int(ni, nj, hB)
-                                    );
+                                    visible = true;
+                                    break;
                                 }
                             }
+
+                            if (!visible) continue;
+
+                            // 🔹 mapping cellule → bit
+                            int bit =
+                                (dx + range) * side +
+                                (dy + range);
+
+                            int chunk = bit >> 6;   // /64
+                            int shift = bit & 63;   // %64
+
+                            node.visibilityMask[hA][chunk] |= (1UL << shift);
                         }
                     }
                 }
@@ -574,6 +609,12 @@ public class NavGridGen : MonoBehaviour
     }
 
 
+
+
+    public static int CellId(int i, int j)
+    {
+        return i * gridY + j;
+    }
 
 
     // ----------------------------------------------------------------------

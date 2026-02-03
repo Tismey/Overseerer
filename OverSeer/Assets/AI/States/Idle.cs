@@ -7,7 +7,7 @@ public class Idle : AIState
     HashSet<AIbase> players = new HashSet<AIbase>();
     public override void Setup()
     {
-        this.Animator.Play("JogMoveTree");
+
         ai.canMove = true;
         this.ai.lockRoot.Lock();
        
@@ -34,7 +34,7 @@ public class Idle : AIState
 
     public override void Continue()
     {
-        this.Animator.Play("JogMoveTree");
+
     }
 
 

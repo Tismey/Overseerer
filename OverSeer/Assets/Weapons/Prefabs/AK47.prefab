@@ -88,7 +88,7 @@ MonoBehaviour:
   owner: {fileID: 0}
   maxAmmo: 320
   currentAmmo: 0
-  maxClip: 30
+  maxClip: 130
   currentClip: 0
   reloadTime: 2
   fireRate: 0.1
@@ -124,8 +124,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.37862015, y: 0.8303739, z: 2.8231523}
-  m_Center: {x: 0.021921158, y: 0.08481306, z: -0.23105848}
+  m_Size: {x: 0.37862015, y: 2.9822328, z: 0.66892016}
+  m_Center: {x: 0.021921158, y: -0.16014452, z: 0.041051213}
 --- !u!54 &5555293155252976415
 Rigidbody:
   m_ObjectHideFlags: 0

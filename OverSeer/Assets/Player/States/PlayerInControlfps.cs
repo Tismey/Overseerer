@@ -15,7 +15,7 @@ public class PlayerInControlfps : AIState
 
     [Header("Recoil Settings")]
     [Tooltip("Angle (in degrees) the camera is kicked up on fire.")]
-    public float recoilAngle = 20f;
+    public float recoilAngle = 5f;
     [Tooltip("How snappy the kick is (higher → faster).")]
     public float snappiness = 2f;
     [Tooltip("How quickly the camera returns to neutral.")]
@@ -37,8 +37,8 @@ public class PlayerInControlfps : AIState
 
     public override void Setup()
     {
-        this.Animator.SetBool("Moving", true);
-        this.ai.lockRoot.Lock();
+        ai.SetAnimationString("ShootFPS");
+        //this.ai.lockRoot.Lock();
         this.ai.canMove = true;
         cam = Camera.main;
         Cursor.lockState = CursorLockMode.Locked;
@@ -51,6 +51,7 @@ public class PlayerInControlfps : AIState
     }
     public override void act()
     {
+        
         float noiseMade = 0;
         //do nothing
         //this.Animator.SetBool("Idle",true);
@@ -69,10 +70,13 @@ public class PlayerInControlfps : AIState
             {
                 ApplyRecoil();
                 noiseMade += 100; //Change that to a parameter per weapon;
-            }
                 
+            }
+            this.Animator.Play("ShootFPS",0,0.0f);
+
         }
 
+        
         if (playerMouvement.dropInput && ai.weapon[ai.WeaponSelect] != null)
         {
             Debug.Log("drop The gun");
@@ -112,21 +116,21 @@ public class PlayerInControlfps : AIState
     public override void Interupt()
     {
         this.ai.canMove = false;
-        this.Animator.SetBool("Moving", false);
-        this.ai.lockRoot.Lock();
+
+        //this.ai.lockRoot.Lock();
     }
 
     public override void Finish()
     {
         this.ai.canMove = false;
-        this.Animator.SetBool("Moving", false);
+
     }
 
     public override void Continue()
     {
         this.ai.canMove = true;
-        this.ai.lockRoot.MoveWithAnim();
-        this.Animator.SetBool("Moving", true);
+        //this.ai.lockRoot.MoveWithAnim();
+
     }
 
     void CastArcRays()

@@ -41,9 +41,9 @@ public class TacticalMove : AIState
     public override void Setup()
     {
         if (!sprint)
-            this.Animator.Play("JogMoveTree");
+            ai.SetAnimationString("JogMoveTree");
         else
-            this.Animator.Play("Sprint");
+            ai.SetAnimationString("Sprint");
         ComputePath();
         ((AiMouvement)ai.moveType).avoidObstacle = false;
       
@@ -131,7 +131,7 @@ public class TacticalMove : AIState
                 if (ai.weapon[ai.WeaponSelect] != null && !ai.weapon[ai.WeaponSelect].CanShoot())
                 {
                     sprint = true;
-                    this.Animator.Play("Sprint");
+                    ai.SetAnimationString("Sprint");
                 }
             }
         }

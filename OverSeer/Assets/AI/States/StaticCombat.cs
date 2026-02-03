@@ -29,6 +29,7 @@ public class StaticCombat : AIState
     // -------------------------------------------------
     public override void Setup()
     {
+
         ai.canMove = false;
         ai.lockRoot.MoveWithAnim();
 
@@ -36,9 +37,9 @@ public class StaticCombat : AIState
         crouched = inCover;
 
         if (crouched)
-            Animator.Play("IdleCrouch");
+            ai.SetAnimationString("IdleCrouch");
         else
-            Animator.Play("StandAim");
+            ai.SetAnimationString("StandAim");
 
         crouchCooldown = Random.Range(1.5f, 4.5f);
         timerExit = Random.Range(timerExit - timerExit / 2, timerExit + timerExit / 2);
@@ -46,6 +47,7 @@ public class StaticCombat : AIState
 
     public override void Continue()
     {
+ 
         ai.canMove = false;
         ai.lockRoot.Lock();
 
@@ -53,9 +55,9 @@ public class StaticCombat : AIState
         crouched = inCover;
 
         if (crouched)
-            Animator.Play("IdleCrouch");
+            ai.SetAnimationString("IdleCrouch");
         else
-            Animator.Play("StandAim");
+            ai.SetAnimationString("StandAim");
 
         crouchCooldown = Random.Range(1.5f, 3.5f);
     }
@@ -96,7 +98,6 @@ public class StaticCombat : AIState
                 );
                 Debug.Log("try to get new cover");
                 ai.AddState(new TacticalMove(newCover, danger, false,true));
-                this.Animator.Play("JogMoveTree");
 
                 return;
             }
@@ -116,7 +117,7 @@ public class StaticCombat : AIState
                 {
                     crouched = false;
                     crouchTimer = 0f;
-                    Animator.Play("StandAim");
+                    ai.SetAnimationString("StandAim");
                 }
             }
 
@@ -127,7 +128,7 @@ public class StaticCombat : AIState
             {
                 crouchTimer = 0f;
                 crouched = true;
-                Animator.Play("IdleCrouch");
+                ai.SetAnimationString("IdleCrouch");
                 return;
             }
         }

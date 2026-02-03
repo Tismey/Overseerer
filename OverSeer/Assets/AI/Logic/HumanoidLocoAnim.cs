@@ -22,6 +22,11 @@ public class HumanoidLocoAnim : AIbase
         this.team = teamName;
     }
 
+    public void FixedUpdate()
+    {
+        UpdateAnimator();
+    }
+
 
 
     public override void AIthink()
@@ -52,7 +57,7 @@ public class HumanoidLocoAnim : AIbase
         }
 
         //this.moveType.RotateActorTowards(test.position, 10f);
-        UpdateAnimator();
+        
 
     }
 

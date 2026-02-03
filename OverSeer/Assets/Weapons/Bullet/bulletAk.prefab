@@ -270,7 +270,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2920573980613839612}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -393,7 +393,7 @@ TrailRenderer:
         inWeight: 0.33333334
         outWeight: 0.33333334
       - serializedVersion: 3
-        time: 0.14521451
+        time: 0.085949376
         value: 0.31060606
         inSlope: 0
         outSlope: 0
@@ -402,7 +402,25 @@ TrailRenderer:
         inWeight: 0.33333334
         outWeight: 0.33333334
       - serializedVersion: 3
-        time: 1
+        time: 0.50477386
+        value: 0.2757721
+        inSlope: -0.010363795
+        outSlope: -0.010363795
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.8092146
+      - serializedVersion: 3
+        time: 0.5087935
+        value: 0
+        inSlope: -0.5039866
+        outSlope: -0.5039866
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.5274658
         value: 0
         inSlope: 0
         outSlope: 0
@@ -415,7 +433,7 @@ TrailRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 0.8463775, g: 1, b: 0, a: 1}
+      key0: {r: 1, g: 0, b: 0.12644863, a: 1}
       key1: {r: 1, g: 1, b: 1, a: 1}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
@@ -432,7 +450,7 @@ TrailRenderer:
       ctime6: 0
       ctime7: 0
       atime0: 0
-      atime1: 65535
+      atime1: 42405
       atime2: 0
       atime3: 0
       atime4: 0
@@ -468,3 +486,4 @@ MonoBehaviour:
     m_Bits: 960
   hitEffect: {fileID: 2709487347784238854, guid: 25bf2cc0302d851499f00a45c69b38ad,
     type: 3}
+  damage: 34
